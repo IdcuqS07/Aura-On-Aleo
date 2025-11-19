@@ -3,11 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useWallet } from '@/components/WalletContext';
 import { Shield, Award, Star, CheckCircle, Globe } from 'lucide-react';
+import { ethers } from 'ethers';
 
-const ZKBadgeDisplay = () => {
-  const { address: walletAddress, isConnected } = useWallet();
-  const [badges, setBadges] = useState({});
-  const [loading, setLoading] = useState(false);
+
+  const ZKBadgeDisplay = () => {
+    const { address: walletAddress, isConnected } = useWallet();
+    const [badges, setBadges] = useState({});
+    const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isConnected && walletAddress) {
@@ -16,17 +18,30 @@ const ZKBadgeDisplay = () => {
   }, [isConnected, walletAddress]);
 
   const fetchUserBadges = async () => {
-    setLoading(true);
+  setLoading(true);
+  try {
+    const badgeData = {};
+    
+    // Check PoH Badge contract
+    const provider = new ethers.JsonRpcProvider('https://rpc-amoy.polygon.technology');
+    const pohContract = new ethers.Contract(
+      '0x7F8b052bD2dfA899E1f41eB7236e818AeE4F6510',
+      ['function hasMinted(address) view returns (bool)', 'function badgeTypes(uint256) view returns (string)'],
+      provider
+    );
+    
+    const hasPohBadge = await pohContract.hasMinted(walletAddress);
+    if (hasPohBadge) {
+      badgeData.poh = true;
+    }
+    
+    // Check old badges from SIMPLE_ZK_BADGE
     try {
       const { getUserBadges, getBadgeContract } = await import('../utils/web3');
       const badgeIds = await getUserBadges(walletAddress);
       
-      const badgeData = {};
-      
       if (badgeIds.length > 0) {
         const contract = await getBadgeContract(true);
-        
-        // Fetch all badges in parallel
         const badgePromises = badgeIds.map(id => contract.badges(id));
         const badgeResults = await Promise.all(badgePromises);
         
@@ -37,18 +52,20 @@ const ZKBadgeDisplay = () => {
           if (type.includes('reputation')) badgeData.reputation = true;
           if (type.includes('civic')) badgeData.civic = true;
           if (type.includes('worldcoin')) badgeData.worldcoin = true;
-          if (type.includes('humanity') || type.includes('poh')) badgeData.poh = true;
         });
-
       }
-      
-      setBadges(badgeData);
+    } catch (err) {
+      console.log('No old badges found');
+    }
+    
+     setBadges(badgeData);
     } catch (error) {
       console.error('Error fetching badges:', error);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const badgeConfig = {
     uniqueness: {
