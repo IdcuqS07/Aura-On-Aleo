@@ -130,19 +130,32 @@ export default function ProofOfHumanity() {
     setLoading(true);
     setError('');
     try {
-      // Step 1: Request MetaMask signature for confirmation
       const { ethereum } = window;
-      if (!ethereum) {
-        throw new Error('MetaMask not installed');
-      }
-
-      const message = `Mint ZK-ID Badge\n\nProof Hash: ${proofHash.slice(0, 20)}...\nScore: ${score}/100\nWallet: ${address}\n\nBy signing, you confirm badge minting.`;
+      if (!ethereum) throw new Error('MetaMask not installed');
+  
+      const provider = new ethers.BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
       
-      const signature = await ethereum.request({
-        method: 'personal_sign',
-        params: [message, address]
-      });
+      const contract = new ethers.Contract(
+        '0x9e6343BB504Af8a39DB516d61c4Aa0aF36c54678',
+        ['function mintBadge(address to, string memory badgeType) public returns (uint256)'],
+        signer
+      );
+      
+      const tx = await contract.mintBadge(address, 'Proof of Humanity');
+      const receipt = await tx.wait();
+      
+      setTxHash(receipt.hash);
+      setStep(4);
+      setTimeout(() => window.location.href = '/dashboard', 5000);
+    } catch (error) {
+      setError('Badge minting failed: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  
       // Step 2: Send to backend with signature
       const response = await fetch(`${BACKEND_URL}/api/poh/issue`, {
         method: 'POST',
