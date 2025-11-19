@@ -140,7 +140,8 @@ export default function ProofOfHumanity() {
       
       const contract = new ethers.Contract(
         '0x7F8b052bD2dfA899E1f41eB7236e818AeE4F6510',
-        ['function mintBadge(string badgeType, string proofHash) public returns (uint256)']
+        ['function mintBadge(string badgeType, string proofHash) public returns (uint256)'],
+        signer
       );
 
       const tx = await contract.mintBadge('Proof of Humanity', proofHash);;
