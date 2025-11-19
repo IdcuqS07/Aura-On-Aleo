@@ -139,12 +139,11 @@ export default function ProofOfHumanity() {
       const signer = await provider.getSigner();
       
       const contract = new ethers.Contract(
-        '0x9e6343BB504Af8a39DB516d61c4Aa0aF36c54678',
-        ['function issueBadge(address recipient, string badgeType, string zkProofHash) public returns (uint256)'],
-        signer
+        '0x7F8b052bD2dfA899E1f41eB7236e818AeE4F6510',
+        ['function mintBadge(string badgeType, string proofHash) public returns (uint256)']
       );
 
-      const tx = await contract.issueBadge(address, 'Proof of Humanity', proofHash);
+      const tx = await contract.mintBadge('Proof of Humanity', proofHash);;
       const receipt = await tx.wait();
       
       setTxHash(receipt.hash);
