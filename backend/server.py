@@ -2,6 +2,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, Security
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from contextlib import asynccontextmanager
 import os
 import logging
 from pathlib import Path
@@ -10,13 +11,22 @@ from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
 import random
+import asyncio
 from blockchain import polygon_integration
 from proof_service import ProofService
 from api_key_auth import verify_api_key, set_db
 
 from poh_routes import router as poh_router
 from passport_routes import router as passport_router
+from websocket_server import ws_manager
+from monitoring_routes import monitoring_bp
 
+# Configure logging first
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -26,8 +36,23 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    polygon_integration.load_contract_addresses()
+    set_db(db)
+    import poh_routes
+    poh_routes.set_db(db)
+    import monitoring_routes
+    monitoring_routes.set_db(db)
+    from monitor_runner import run_monitor
+    asyncio.create_task(run_monitor())
+    yield
+    # Shutdown
+    client.close()
+
 # Create the main app without a prefix
-app = FastAPI(title="Aura Protocol API", version="1.0.0")
+app = FastAPI(title="Aura Protocol API", version="1.0.0", lifespan=lifespan)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -700,14 +725,7 @@ async def verify_proof_endpoint(proof_hash: str, user_id: str, api_key_info = Se
     }
 
 
-# Load blockchain contract addresses on startup
-@app.on_event("startup")
-async def startup_event():
-    polygon_integration.load_contract_addresses()
-    set_db(db)
-    # Inject db into poh_routes
-    import poh_routes
-    poh_routes.set_db(db)
+
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -730,6 +748,25 @@ app.include_router(graph_router)
 from oracle_routes import router as oracle_router
 app.include_router(oracle_router, prefix="/api")
 
+# Include Enhanced API router
+try:
+    from enhanced_routes import router as enhanced_router
+    app.include_router(enhanced_router)
+    logger.info("✅ Enhanced API routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Enhanced routes not available: {e}")
+
+# Include Threshold Proof routes
+try:
+    from threshold_routes import router as threshold_router
+    app.include_router(threshold_router, prefix="/api")
+    logger.info("✅ Threshold proof routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Threshold routes not available: {e}")
+
+# Include Monitoring routes
+app.include_router(monitoring_bp)
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -738,13 +775,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

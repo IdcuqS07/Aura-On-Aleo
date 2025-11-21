@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - CORS_ORIGINS=https://aurapass.xyz,https://www.aurapass.xyz
     restart: unless-stopped

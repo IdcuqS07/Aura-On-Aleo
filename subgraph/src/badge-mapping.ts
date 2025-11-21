@@ -1,29 +1,27 @@
+import { BigInt } from "@graphprotocol/graph-ts"
 import { BadgeMinted } from "../generated/SimpleZKBadge/SimpleZKBadge"
 import { Badge, User, GlobalStats } from "../generated/schema"
 
 export function handleBadgeMinted(event: BadgeMinted): void {
-  // Create Badge entity
-  let badge = new Badge(event.params.tokenId.toString())
+  let badge = new Badge(event.transaction.hash.toHexString() + "-" + event.logIndex.toString())
   badge.tokenId = event.params.tokenId
-  badge.owner = event.params.recipient
+  badge.owner = event.params.to
   badge.badgeType = event.params.badgeType
   badge.zkProofHash = event.params.zkProofHash
   badge.issuedAt = event.block.timestamp
   badge.txHash = event.transaction.hash
   badge.save()
 
-  // Update or create User
-  let user = User.load(event.params.recipient.toHexString())
+  let user = User.load(event.params.to.toHexString())
   if (user == null) {
-    user = new User(event.params.recipient.toHexString())
-    user.address = event.params.recipient
+    user = new User(event.params.to.toHexString())
+    user.address = event.params.to
     user.totalBadges = BigInt.fromI32(0)
     user.createdAt = event.block.timestamp
   }
   user.totalBadges = user.totalBadges.plus(BigInt.fromI32(1))
   user.save()
 
-  // Update Global Stats
   let stats = GlobalStats.load("global")
   if (stats == null) {
     stats = new GlobalStats("global")

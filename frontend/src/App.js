@@ -18,6 +18,9 @@ import DirectMint from '@/components/DirectMint';
 import ProofOfHumanity from '@/components/ProofOfHumanity';
 import OnChainData from '@/pages/OnChainData';
 import RiskOracle from '@/components/RiskOracle';
+import LiveDashboard from '@/components/LiveDashboard';
+import EnhancedLiveDashboard from '@/components/EnhancedLiveDashboard';
+import ThresholdProof from '@/components/ThresholdProof';
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
             <Route path="/poh/callback" element={<ProofOfHumanity />} />
             <Route path="/onchain" element={<OnChainData />} />
             <Route path="/oracle" element={<RiskOracle />} />
+            <Route path="/monitor" element={<LiveDashboard />} />
+            <Route path="/monitor/enhanced" element={<EnhancedLiveDashboard />} />
+            <Route path="/threshold" element={<ThresholdProof />} />
           </Routes>
           <Footer />
         </BrowserRouter>
