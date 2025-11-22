@@ -45,10 +45,30 @@ async def lifespan(app: FastAPI):
     poh_routes.set_db(db)
     import monitoring_routes
     monitoring_routes.set_db(db)
+    
+    # Start monitoring
     from monitor_runner import run_monitor
     asyncio.create_task(run_monitor())
+    
+    # Start AI Oracle and Dynamic Oracle
+    try:
+        import ai_oracle_routes
+        ai_oracle_routes.set_db(db)
+        from oracle_service import get_oracle_service
+        oracle = get_oracle_service(db)
+        await oracle.start()
+        logger.info("✅ AI Risk Oracle started")
+    except Exception as e:
+        logger.warning(f"⚠️ AI Oracle not started: {e}")
+    
     yield
     # Shutdown
+    try:
+        from oracle_service import oracle_service
+        if oracle_service:
+            await oracle_service.stop()
+    except:
+        pass
     client.close()
 
 # Create the main app without a prefix
@@ -766,6 +786,14 @@ except ImportError as e:
 
 # Include Monitoring routes
 app.include_router(monitoring_bp)
+
+# Include AI Oracle routes
+try:
+    from ai_oracle_routes import router as ai_oracle_router
+    app.include_router(ai_oracle_router)
+    logger.info("✅ AI Oracle routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ AI Oracle routes not available: {e}")
 
 app.add_middleware(
     CORSMiddleware,
