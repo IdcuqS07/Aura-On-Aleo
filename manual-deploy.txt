@@ -1,0 +1,51 @@
+# Manual Deploy Commands for VPS
+
+# 1. Create docker-compose.yml
+cat > docker-compose.yml << 'EOF'
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+EOF
+
+# 2. Create Dockerfile.backend
+cat > Dockerfile.backend << 'EOF'
+FROM python:3.11-slim
+WORKDIR /app
+COPY backend/requirements.txt .
+RUN pip install -r requirements.txt
+COPY backend/ .
+EXPOSE 8080
+CMD ["uvicorn", "server_fast:app", "--host", "0.0.0.0", "--port", "8080"]
+EOF
+
+# 3. Create Dockerfile.frontend
+cat > Dockerfile.frontend << 'EOF'
+FROM node:18-alpine
+WORKDIR /app
+COPY frontend/package.json frontend/yarn.lock ./
+RUN yarn install
+COPY frontend/ .
+RUN yarn build
+FROM nginx:alpine
+COPY --from=0 /app/build /usr/share/nginx/html
+EXPOSE 80
+EOF
+
+# 4. Run
+docker-compose build
+docker-compose up -d
