@@ -55,3 +55,18 @@ async def get_twitter_data(access_token: str) -> dict:
         "score": 15,
         "verified": True
     }
+
+
+async def fetch_twitter_data(wallet_address: str) -> dict:
+    """Fetch Twitter data for wallet address (placeholder)"""
+    # Placeholder - in production, map wallet to Twitter account
+    return {
+        "username": "user123",
+        "account_age_days": 1200,
+        "followers": 5000,
+        "following": 800,
+        "tweets": 2500,
+        "engagement_rate": 0.12,
+        "score": 75,
+        "verified": False
+    }

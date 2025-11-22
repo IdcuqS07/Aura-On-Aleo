@@ -49,3 +49,17 @@ async def get_github_data(access_token: str) -> dict:
             "score": score,
             "verified": True
         }
+
+
+async def fetch_github_data(wallet_address: str) -> dict:
+    """Fetch GitHub data for wallet address (placeholder)"""
+    # Placeholder - in production, map wallet to GitHub account
+    return {
+        "username": "user",
+        "account_age_days": 730,
+        "public_repos": 45,
+        "followers": 320,
+        "contributions": 1250,
+        "score": 85,
+        "verified": False
+    }

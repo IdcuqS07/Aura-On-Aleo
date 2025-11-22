@@ -40,3 +40,8 @@ async def fetch_defi_data(wallet_address: str) -> Dict:
     except Exception as e:
         logger.error(f"DeFi data fetch failed: {e}")
         return {}
+
+
+async def get_onchain_data(wallet_address: str) -> Dict:
+    """Get on-chain data (alias for fetch_wallet_data)"""
+    return await fetch_wallet_data(wallet_address)
