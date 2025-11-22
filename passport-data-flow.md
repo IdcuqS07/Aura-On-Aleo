@@ -1,40 +1,51 @@
 # Passport Data Flow - User Journey
 
-## 🔄 Complete Flow: Wallet → Passport → API
+## 🔄 Complete Flow: Multi-chain Wallet → Dynamic Passport → Real-time API
 
 ```
-User Connect Wallet → Create Passport → Data Collection → Score Computation → API Access
+User Connect Wallet (EVM/Multi-chain) → Create Passport → Data Collectors → Scoring Engine → Storage (Hybrid) → API Layer → Partner Integration
 ```
 
 ---
 
-## Step 1: User Connects Wallet
+## Step 1: User Connects Wallet (Multi-chain)
 
 ```javascript
-// Frontend
-const address = await connectWallet(); // "0x742d35..."
+// Frontend - Support multiple chains
+const wallet = await connectWallet();
+const addresses = {
+  ethereum: wallet.address,
+  polygon: wallet.address,
+  bsc: wallet.address,
+  arbitrum: wallet.address,
+  optimism: wallet.address
+};
 ```
 
-**Output:** User wallet address
+**Output:** User wallet addresses across chains
 
 ---
 
-## Step 2: User Creates Passport
+## Step 2: User Creates Passport (Opt-in Data Sources)
 
 ```javascript
-// User chooses data sources
+// User chooses data sources (opt-in)
 const dataSources = [
-  'github',
-  'twitter', 
-  'wallet',
-  'defi'
+  'github',      // Code contributions
+  'twitter',     // Social reputation
+  'wallet',      // On-chain activity
+  'defi',        // Lending history
+  'nft',         // NFT holdings
+  'ens',         // ENS domain
+  'gitcoin',     // Gitcoin Passport
+  'lens'         // Lens Protocol
 ];
 
-// User gives consent
+// User gives consent (GDPR compliant)
 const consent = await requestConsent(dataSources);
 
 // Create passport
-const passport = await createPassport(address, dataSources);
+const passport = await createPassport(addresses, dataSources);
 ```
 
 **Output:** 
@@ -42,124 +53,208 @@ const passport = await createPassport(address, dataSources);
 {
   "passport_id": "PASS-ABC123",
   "tx_hash": "0xdef456...",
-  "status": "created"
+  "status": "created",
+  "data_sources": ["github", "twitter", "wallet", "defi", "nft", "ens", "gitcoin", "lens"]
 }
 ```
 
 ---
 
-## Step 3: Data Collection (Background)
+## Step 3: Data Collectors (Parallel Fetching)
 
 ```javascript
-// Aura Oracle collects data from all sources
-const data = {
-  github: await fetchGithub(address),      // contributions, repos
-  twitter: await fetchTwitter(address),    // followers, engagement
-  wallet: await fetchWallet(address),      // txs, volume, age
-  defi: await fetchDeFi(address)          // borrows, repays
+// Aura Oracle - Data Collectors
+const collectors = {
+  github: new GitHubCollector(),
+  twitter: new TwitterCollector(),
+  wallet: new WalletScanner(), // Alchemy API
+  defi: new DeFiIndexer(),     // Aave, Uniswap, Compound
+  nft: new NFTCollector(),
+  ens: new ENSResolver(),
+  gitcoin: new GitcoinPassport(),
+  lens: new LensProtocol()
 };
+
+// Parallel data collection
+const data = await Promise.all([
+  collectors.github.fetch(addresses),
+  collectors.twitter.fetch(addresses),
+  collectors.wallet.scan(addresses),
+  collectors.defi.index(addresses),
+  collectors.nft.fetch(addresses),
+  collectors.ens.resolve(addresses),
+  collectors.gitcoin.getScore(addresses),
+  collectors.lens.getProfile(addresses)
+]);
 ```
 
 **Output:**
 ```json
 {
-  "github": { "score": 85, "contributions": 1250 },
-  "twitter": { "score": 75, "followers": 5000 },
-  "wallet": { "score": 90, "tx_count": 450 },
-  "defi": { "score": 95, "borrowed": 50000 }
+  "github": { "score": 85, "contributions": 1250, "repos": 45 },
+  "twitter": { "score": 75, "followers": 5000, "engagement": 0.12 },
+  "wallet": { "score": 90, "tx_count": 450, "volume_usd": 125500 },
+  "defi": { "score": 95, "borrowed": 50000, "repayment_rate": 100 },
+  "nft": { "score": 70, "holdings": 12, "floor_value": 5.2 },
+  "ens": { "score": 80, "has_domain": true, "domain": "user.eth" },
+  "gitcoin": { "score": 88, "passport_score": 25.5 },
+  "lens": { "score": 65, "has_profile": true, "followers": 320 }
 }
 ```
 
 ---
 
-## Step 4: Score Computation
+## Step 4: Scoring Engine (Real-time Computation)
 
 ```javascript
-// Weighted aggregation
-const creditScore = (
-  data.github.score * 0.15 +
-  data.twitter.score * 0.10 +
-  data.wallet.score * 0.25 +
-  data.defi.score * 0.35 +
-  data.onchain.score * 0.15
-) * 10;
+// Scoring Engine
+class ScoringEngine {
+  async compute(data) {
+    // 1. Normalize data
+    const normalized = this.normalize(data);
+    
+    // 2. Analyze risk patterns
+    const patterns = this.analyzePatterns(normalized);
+    
+    // 3. Weighted aggregation
+    const creditScore = (
+      normalized.github * 0.15 +
+      normalized.twitter * 0.10 +
+      normalized.wallet * 0.25 +
+      normalized.defi * 0.35 +
+      normalized.onchain * 0.15
+    ) * 10;
+    
+    // 4. Risk assessment
+    const riskLevel = this.assessRisk(creditScore, patterns);
+    
+    return { creditScore, riskLevel, patterns };
+  }
+}
 
-// Risk assessment
-const riskLevel = creditScore >= 750 ? 'low' : 
-                  creditScore >= 600 ? 'medium' : 'high';
+// Schedules:
+// • Event-driven: Big transactions trigger immediate update
+// • Batch: Recompute every 5 minutes
+// • Partner Force Refresh: Rate-limited API endpoint
 ```
 
 **Output:**
 ```json
 {
   "credit_score": 850,
-  "risk_level": "low"
+  "risk_level": "low",
+  "patterns": {
+    "consistent_repayment": true,
+    "high_activity": true,
+    "diversified_portfolio": true
+  }
 }
 ```
 
 ---
 
-## Step 5: Store & Commit
+## Step 5: Storage (Hybrid Architecture)
 
 ```javascript
-// Store in database (off-chain)
+// Off-chain Storage (MongoDB/Redis)
 await db.passports.insertOne({
   passport_id: "PASS-ABC123",
   owner: address,
   credit_score: 850,
+  risk_level: "low",
   data_sources: data,
+  last_updated: new Date(),
   created_at: new Date()
 });
 
-// Commit to blockchain (on-chain)
-const commitment = keccak256(data);
-await passportContract.createPassport(address, commitment);
+// Cache for fast access (Redis)
+await redis.setex(
+  `passport:${address}`,
+  300, // 5 minutes TTL
+  JSON.stringify({ score: 850, risk: "low" })
+);
+
+// On-chain Commitment (Daily)
+// Merkle root of all scores updated every 24 hours
+const merkleRoot = computeMerkleRoot(allPassports);
+await passportContract.updateDailyCommitment(merkleRoot);
 ```
 
 **Output:**
 ```json
 {
   "passport_id": "PASS-ABC123",
-  "commitment": "0xabc123...",
-  "tx_hash": "0xdef456..."
+  "off_chain": {
+    "score": 850,
+    "datapoints": {...},
+    "last_updated": "<5 minutes"
+  },
+  "on_chain": {
+    "daily_commitment": "0xabc123...",
+    "merkle_root": "0xdef456...",
+    "updated_every": "24 hours"
+  }
 }
 ```
 
 ---
 
-## Step 6: Continuous Updates (Every 5 min)
+## Step 6: Continuous Updates (Multi-trigger)
 
 ```javascript
-// Background job
+// 1. Event-driven updates (Big transactions)
+web3.eth.subscribe('logs', {
+  address: userWallet,
+  topics: ['Transfer', 'Borrow', 'Repay']
+}).on('data', async (event) => {
+  if (event.value > threshold) {
+    await updatePassportImmediately(userAddress);
+  }
+});
+
+// 2. Batch updates (Every 5 minutes)
 setInterval(async () => {
-  // Re-fetch data
-  const newData = await collectAllData(address);
+  const activePassports = await db.passports.find({ isActive: true });
   
-  // Re-compute score
-  const newScore = await computeScore(newData);
-  
-  // Update database
-  await db.passports.updateOne(
-    { passport_id: "PASS-ABC123" },
-    { $set: { credit_score: newScore, last_updated: new Date() }}
-  );
+  for (const passport of activePassports) {
+    const newData = await collectAllData(passport.owner);
+    const newScore = await computeScore(newData);
+    
+    await db.passports.updateOne(
+      { passport_id: passport.passport_id },
+      { $set: { credit_score: newScore, last_updated: new Date() }}
+    );
+  }
 }, 5 * 60 * 1000);
+
+// 3. Partner force refresh (Rate-limited)
+app.post('/api/refresh/:address', rateLimiter, async (req, res) => {
+  await updatePassportImmediately(req.params.address);
+  res.json({ updated: true });
+});
 ```
 
-**Output:** Score always fresh (max 5 min old)
+**Output:** Score always fresh (max 5 min old, or instant on big events)
 
 ---
 
-## Step 7: Partner Accesses API
+## Step 7: API Layer (Partner Integration)
 
 ```javascript
-// Partner calls API
+// GET /passport/{address} - Get real-time passport
 const response = await fetch(
-  'https://api.aurapass.xyz/v1/passport/0x742d35.../realtime',
+  'https://api.aurapass.xyz/v1/passport/0x742d35...',
   { headers: { 'Authorization': 'Bearer API_KEY' }}
 );
 
-const passport = await response.json();
+// GET /refresh/{address} - Force refresh (Partner only, rate-limited)
+const refresh = await fetch(
+  'https://api.aurapass.xyz/v1/refresh/0x742d35...',
+  { 
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer API_KEY' }
+  }
+);
 ```
 
 **Output:**
@@ -171,17 +266,22 @@ const passport = await response.json();
   "risk_level": "low",
   "verified": true,
   "computed_at": "2025-11-21T12:00:00Z",
-  "valid_until": "2025-11-21T12:05:00Z",
+  "timestamp": "2 seconds ago",
   "proof": {
     "commitment": "0xabc123...",
-    "signature": "0xdef456..."
+    "signature": "0xdef456...",
+    "merkle_proof": ["0x111...", "0x222..."]
+  },
+  "optional_zk_proof": {
+    "threshold_met": true,
+    "nullifier": "0x999..."
   }
 }
 ```
 
 ---
 
-## Step 8: Partner Uses Data
+## Step 8: Partner Uses Data (Lending/Game/DeFi)
 
 ```javascript
 // Lending protocol checks credit
@@ -192,10 +292,19 @@ if (passport.credit_score >= 750) {
     loanAmount,
     passport.proof
   );
+} else {
+  // Reject or offer higher interest rate
+  await lendingContract.rejectLoan(passport.owner);
 }
+
+// Optional: ZK validation (privacy-preserving)
+const zkValid = await verifyZKProof(
+  passport.optional_zk_proof,
+  750 // threshold
+);
 ```
 
-**Output:** Loan approved ✅
+**Output:** Loan approved ✅ or Rejected ❌
 
 ---
 
@@ -372,3 +481,132 @@ Create → Update (5 min) → Update (5 min) → ... → Commit (24h) → Repeat
 **Flow Complete!** 🎉
 
 From wallet connection to API access in ~30 seconds, then continuously updated every 5 minutes forever.
+
+
+---
+
+## 📊 Enhanced Visual Flow Diagram
+
+```
+┌───────────────────────────────┐
+│             User              │
+│  Connect Wallet (EVM/Multich) │
+└───────────────┬───────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│        Create Passport        │
+│  Choose Data Sources (opt-in) │
+│   GitHub / Twitter / DeFi     │
+│   NFT / ENS / Gitcoin / Lens  │
+└───────────────┬───────────────┘
+                │
+                ▼
+        ┌─────────────────┐
+        │   Aura Oracle   │
+        └───────┬─────────┘
+                │
+                ▼
+┌────────────────────────────────────────────┐
+│             Data Collectors                │
+│                                            │
+│  ┌─────────────┐   ┌──────────────┐       │
+│  │  GitHub API │   │ Twitter API  │       │
+│  └─────────────┘   └──────────────┘       │
+│                                            │
+│  ┌─────────────┐   ┌──────────────┐       │
+│  │ Wallet Scan │   │ DeFi Indexer │       │
+│  │ (Alchemy)   │   │(Aave, Uni...)│       │
+│  └─────────────┘   └──────────────┘       │
+└───────────────┬────────────────────────────┘
+                │
+                ▼
+┌────────────────────────────────────────────┐
+│             Scoring Engine                 │
+│                                            │
+│ → Normalize data                           │
+│ → Analyze risk patterns                    │
+│ → Compute Score (e.g., 850)                │
+│ → Compute Risk (Low/Med/High)              │
+│                                            │
+│ Schedules:                                  │
+│   • Event-driven (big transactions)         │
+│   • Recompute every 5 min (batch)           │
+│   • Partner Force Refresh (rate limited)    │
+└───────────────┬────────────────────────────┘
+                │
+                ▼
+┌────────────────────────────────────────────┐
+│                Storage                     │
+│                                            │
+│ Off-chain (MongoDB/Redis):                 │
+│   • score: 850                             │
+│   • datapoints: {...}                      │
+│   • last_updated: <5 minutes               │
+│                                            │
+│ On-chain (Smart Contract):                 │
+│   • daily commitment                       │
+│   • merkle root of all scores              │
+│   • updated every 24 hours                 │
+└───────────────┬────────────────────────────┘
+                │
+                ▼
+┌────────────────────────────────────────────┐
+│               API Layer                    │
+│                                            │
+│ GET /passport/{address}                    │
+│   → Returns: score, risk, timestamp        │
+│   → Optional: ZK-proof threshold check     │
+│                                            │
+│ GET /refresh/{address} (Partner Only)      │
+│   → Forces score recalculation             │
+│   → Rate-limited (anti abuse)              │
+└───────────────┬────────────────────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│            Partner             │
+│   Lending / Game / DeFi App   │
+│                               │
+│ Check: Score ≥ 750 ?           │
+│ → Approve / Reject            │
+│                               │
+│ (Optional ZK validation)      │
+└───────────────────────────────┘
+```
+
+---
+
+## 🔄 Update Triggers
+
+### 1. Event-driven (Immediate)
+- Large transactions (>$10K)
+- New DeFi position opened
+- Loan repayment completed
+- NFT purchase/sale
+
+### 2. Batch Updates (Every 5 minutes)
+- All active passports
+- Background job
+- Parallel processing
+
+### 3. Partner Force Refresh (On-demand)
+- Rate-limited: 10 calls/hour
+- Premium partners only
+- Immediate recalculation
+
+---
+
+## 🎯 Key Improvements
+
+✅ **Multi-chain Support** - ETH, Polygon, BSC, Arbitrum, Optimism
+✅ **8 Data Sources** - GitHub, Twitter, Wallet, DeFi, NFT, ENS, Gitcoin, Lens
+✅ **3 Update Triggers** - Event-driven, Batch, Force Refresh
+✅ **Hybrid Storage** - Off-chain (fast) + On-chain (trustless)
+✅ **Partner API** - Force refresh capability
+✅ **ZK Privacy** - Optional threshold proofs
+
+---
+
+**Updated:** 2025-11-21
+**Version:** 2.0 (Enhanced Multi-chain Architecture)
