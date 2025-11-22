@@ -256,7 +256,6 @@ MIT License - see [LICENSE](LICENSE) for details
 - **SimpleZKBadge Contract**: https://amoy.polygonscan.com/address/0x9e6343BB504Af8a39DB516d61c4Aa0aF36c54678
 - **CreditPassport Contract**: https://amoy.polygonscan.com/address/0x1112373c9954B9bbFd91eb21175699b609A1b551
 - **ProofRegistry Contract**: https://amoy.polygonscan.com/address/0x296DB144E62C8C826bffA4503Dc9Fbf29F25D44B
-- **Testnet Guide**: [/testnet](https://www.aurapass.xyz/testnet)
 
 ## 📊 Current Status
 
