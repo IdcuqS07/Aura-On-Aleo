@@ -799,6 +799,16 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ AI Oracle routes not available: {e}")
 
+# Include Passport Verify routes
+try:
+    from passport_verify_routes import router as passport_verify_router
+    import passport_verify_routes
+    passport_verify_routes.set_db(db)
+    app.include_router(passport_verify_router)
+    logger.info("✅ Passport Verify routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Passport Verify routes not available: {e}")
+
 # Include API Key routes
 try:
     from api_key_routes import router as api_key_router

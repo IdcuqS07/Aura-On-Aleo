@@ -210,7 +210,22 @@ const CreditPassport = () => {
                 <div className="grid grid-cols-2 gap-6 mb-8">
                   <div>
                     <div className="text-white/70 text-sm mb-1">Passport ID</div>
-                    <div className="text-xl font-bold text-white font-mono">{passport.passport_id}</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-xl font-bold text-white font-mono">{passport.passport_id}</div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(passport.passport_id);
+                          alert('Passport ID copied! Share this with partners.');
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-all"
+                        title="Copy Passport ID"
+                      >
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="text-white/50 text-xs mt-1">Share with partners for verification</div>
                   </div>
                   <div>
                     <div className="text-white/70 text-sm mb-1">Risk Level</div>

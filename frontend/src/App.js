@@ -21,6 +21,7 @@ import RiskOracle from '@/components/RiskOracle';
 import LiveDashboard from '@/components/LiveDashboard';
 import EnhancedLiveDashboard from '@/components/EnhancedLiveDashboard';
 import ThresholdProof from '@/components/ThresholdProof';
+import PartnerVerify from '@/components/PartnerVerify';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             <Route path="/monitor" element={<LiveDashboard />} />
             <Route path="/monitor/enhanced" element={<EnhancedLiveDashboard />} />
             <Route path="/threshold" element={<ThresholdProof />} />
+            <Route path="/partner/verify" element={<PartnerVerify />} />
           </Routes>
           <Footer />
         </BrowserRouter>
