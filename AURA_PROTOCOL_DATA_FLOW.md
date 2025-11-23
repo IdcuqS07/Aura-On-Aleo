@@ -16,7 +16,7 @@
    └─────────┘          └─────────┘          └─────────┘
         │                     │                     │
    React App            FastAPI Server      Smart Contracts
-   Port 3030            Port 8080           Polygon Amoy
+   Port 3000            Port 8000           Polygon Amoy
 ```
 
 ---
