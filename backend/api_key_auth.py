@@ -1,8 +1,9 @@
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Security, Header
 from fastapi.security import APIKeyHeader
+from typing import Optional
 import secrets
 
-API_KEY_HEADER = APIKeyHeader(name="X-API-Key")
+API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 # Demo API keys (fallback)
 VALID_API_KEYS = {
@@ -19,6 +20,13 @@ def set_db(database):
 
 async def verify_api_key(api_key: str = Security(API_KEY_HEADER)):
     """Verify API key for Proof-as-a-Service"""
+    # Strip 'Bearer ' prefix if present
+    if api_key and api_key.startswith('Bearer '):
+        api_key = api_key[7:]
+    
+    if not api_key:
+        raise HTTPException(status_code=401, detail="API key required")
+    
     # Check database first
     if db is not None:
         key_info = await db.api_keys.find_one({"api_key": api_key, "is_active": True})
