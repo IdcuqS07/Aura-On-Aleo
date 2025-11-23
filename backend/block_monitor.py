@@ -1,4 +1,5 @@
 from web3 import Web3
+from web3.middleware import geth_poa_middleware
 import asyncio
 import logging
 from datetime import datetime
@@ -8,6 +9,8 @@ logger = logging.getLogger(__name__)
 class BlockMonitor:
     def __init__(self, rpc_url, ws_manager, contract_addresses):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
+        # Inject POA middleware for Polygon Amoy
+        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
         self.ws_manager = ws_manager
         self.contract_addresses = [addr.lower() for addr in contract_addresses]
         self.last_block = 0
