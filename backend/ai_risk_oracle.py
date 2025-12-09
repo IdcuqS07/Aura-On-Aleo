@@ -13,14 +13,18 @@ class AIRiskOracle:
     def __init__(self):
         # Simple rule-based model (can be replaced with trained ML model)
         self.weights = {
-            'poh_score': 0.35,
-            'badge_count': 0.20,
-            'onchain_activity': 0.25,
+            'poh_score': 0.25,
+            'badge_count': 0.15,
+            'onchain_activity': 0.15,
             'account_age': 0.10,
-            'score_velocity': 0.10
+            'score_velocity': 0.10,
+            'defi_supply': 0.10,
+            'defi_protocols': 0.05,
+            'defi_health': 0.05,
+            'defi_debt': 0.05
         }
     
-    def predict_risk_score(self, user_data: Dict) -> Dict:
+    def predict_risk_score(self, user_data: Dict, wallet_address: str = None) -> Dict:
         """
         Predict risk score using AI model
         
@@ -50,11 +54,19 @@ class AIRiskOracle:
         account_age_days = user_data.get('account_age_days', 0)
         score_history = user_data.get('score_history', [])
         
+        # Get REAL DeFi data if wallet provided
+        defi_features = {}
+        if wallet_address:
+            defi_features = self._get_defi_features(wallet_address)
+        
         # Feature engineering
         features = self._extract_features(
             poh_score, badge_count, onchain_activity, 
             account_age_days, score_history
         )
+        
+        # Merge DeFi features
+        features.update(defi_features)
         
         # Calculate risk score (inverse of trust score)
         trust_score = self._calculate_trust_score(features)
@@ -80,19 +92,19 @@ class AIRiskOracle:
     
     def _extract_features(self, poh_score, badge_count, onchain_activity, 
                          account_age_days, score_history) -> Dict:
-        """Extract and normalize features"""
+        """Extract and normalize features with REAL DeFi data"""
         
         # Normalize features to 0-1 scale
         poh_normalized = poh_score / 100
-        badge_normalized = min(badge_count / 10, 1.0)  # Max 10 badges
-        onchain_normalized = min(onchain_activity / 100, 1.0)  # Max 100 txs
-        age_normalized = min(account_age_days / 365, 1.0)  # Max 1 year
+        badge_normalized = min(badge_count / 10, 1.0)
+        onchain_normalized = min(onchain_activity / 100, 1.0)
+        age_normalized = min(account_age_days / 365, 1.0)
         
-        # Calculate score velocity (trend)
-        velocity = 0.5  # Neutral default
+        # Calculate score velocity
+        velocity = 0.5
         if len(score_history) >= 2:
             recent_change = score_history[-1] - score_history[0]
-            velocity = 0.5 + (recent_change / 1000)  # Normalize to 0-1
+            velocity = 0.5 + (recent_change / 1000)
             velocity = max(0, min(1, velocity))
         
         return {
@@ -220,6 +232,54 @@ class AIRiskOracle:
             return 'Moderate risk. Approve with standard terms.'
         else:
             return 'High risk. Require additional collateral or decline.'
+    
+    def _get_defi_features(self, wallet_address: str) -> Dict:
+        """Extract features from REAL DeFi data"""
+        try:
+            from defi_indexer import fetch_defi_data, get_defi_risk_score
+            
+            # Fetch real DeFi data
+            defi_data = fetch_defi_data(wallet_address)
+            summary = defi_data.get('summary', {})
+            aave = defi_data.get('protocols', {}).get('aave', {})
+            
+            # Extract DeFi features
+            total_supplied = summary.get('total_supplied_usd', 0)
+            total_borrowed = summary.get('total_borrowed_usd', 0)
+            protocols_used = summary.get('protocols_used', 0)
+            health_factor = aave.get('health_factor', 0)
+            
+            # Normalize features
+            defi_supply_score = min(total_supplied / 10000, 1.0)  # Max $10k
+            defi_protocols_score = min(protocols_used / 5, 1.0)  # Max 5 protocols
+            
+            # Health factor score (1.5+ is good)
+            health_score = 0
+            if health_factor > 0:
+                if health_factor >= 2.0:
+                    health_score = 1.0
+                elif health_factor >= 1.5:
+                    health_score = 0.8
+                elif health_factor >= 1.2:
+                    health_score = 0.5
+                else:
+                    health_score = 0.2
+            
+            # Debt ratio (lower is better)
+            debt_ratio = 0
+            if total_supplied > 0:
+                debt_ratio = total_borrowed / total_supplied
+            debt_score = max(0, 1.0 - debt_ratio)
+            
+            return {
+                'defi_supply': defi_supply_score,
+                'defi_protocols': defi_protocols_score,
+                'defi_health': health_score,
+                'defi_debt': debt_score
+            }
+        except Exception as e:
+            print(f"Error fetching DeFi features: {e}")
+            return {}
 
 # Singleton instance
 ai_oracle = AIRiskOracle()

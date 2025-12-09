@@ -1,17 +1,18 @@
 type Badge @entity(immutable: false) {
   id: ID!
   tokenId: BigInt!
-  owner: Bytes!
+  owner: User!
   badgeType: String!
   zkProofHash: Bytes!
   issuedAt: BigInt!
   txHash: Bytes!
+  blockNumber: BigInt!
 }
 
 type Passport @entity(immutable: false) {
   id: ID!
   tokenId: BigInt!
-  owner: Bytes!
+  owner: User!
   creditScore: BigInt!
   pohScore: BigInt!
   badgeCount: BigInt!
@@ -19,6 +20,8 @@ type Passport @entity(immutable: false) {
   issuedAt: BigInt!
   lastUpdated: BigInt!
   txHash: Bytes!
+  blockNumber: BigInt!
+  scoreHistory: [ScoreUpdate!]! @derivedFrom(field: "passport")
 }
 
 type ScoreUpdate @entity(immutable: true) {
@@ -28,13 +31,18 @@ type ScoreUpdate @entity(immutable: true) {
   newScore: BigInt!
   timestamp: BigInt!
   txHash: Bytes!
+  blockNumber: BigInt!
 }
 
 type User @entity(immutable: false) {
   id: ID!
   address: Bytes!
+  badges: [Badge!]! @derivedFrom(field: "owner")
+  passports: [Passport!]! @derivedFrom(field: "owner")
   totalBadges: BigInt!
+  totalPassports: BigInt!
   createdAt: BigInt!
+  lastActivity: BigInt!
 }
 
 type GlobalStats @entity(immutable: false) {
@@ -42,5 +50,16 @@ type GlobalStats @entity(immutable: false) {
   totalBadges: BigInt!
   totalPassports: BigInt!
   totalUsers: BigInt!
+  totalScoreUpdates: BigInt!
   averageCreditScore: BigInt!
+  lastUpdated: BigInt!
+}
+
+type DailyStats @entity(immutable: false) {
+  id: ID!
+  date: Int!
+  badgesMinted: BigInt!
+  passportsIssued: BigInt!
+  scoreUpdates: BigInt!
+  newUsers: BigInt!
 }

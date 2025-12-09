@@ -12,8 +12,14 @@ class CreditRiskClassifier:
     """Binary classifier: Low/Medium/High risk"""
     
     def __init__(self):
-        # Weights trained on synthetic data
-        self.weights = np.array([0.25, 0.20, 0.15, 0.15, 0.10, 0.08, 0.07])
+        # Weights for 19 features
+        self.weights = np.array([
+            0.15, 0.12, 0.10, 0.08, 0.08, 0.07, 0.06,  # Passport (7)
+            0.05, 0.05, 0.04, 0.03,                     # Transaction (4)
+            0.04, 0.04, 0.03, 0.03,                     # DeFi (4)
+            0.02, 0.02,                                 # Social (2)
+            0.02, 0.02                                  # Market (2)
+        ])
         self.thresholds = {'low': 0.7, 'medium': 0.4}
     
     def predict(self, features: np.ndarray) -> Tuple[str, float]:
@@ -32,12 +38,15 @@ class DefaultPredictor:
     """Predict probability of default (0-100%)"""
     
     def __init__(self):
+        # Use first 5 most important features
         self.weights = np.array([0.30, 0.25, 0.20, 0.15, 0.10])
+        self.feature_indices = [0, 1, 2, 3, 4]  # credit, poh, badge, activity, age
     
     def predict(self, features: np.ndarray) -> float:
         """Return default probability (0-100)"""
-        # Inverse relationship: higher features = lower default risk
-        trust_score = np.dot(features[:5], self.weights)
+        # Use only first 5 features
+        selected_features = features[self.feature_indices]
+        trust_score = np.dot(selected_features, self.weights)
         default_prob = (1 - trust_score) * 100
         return max(0, min(100, default_prob))
 
@@ -186,8 +195,12 @@ class AIRiskOracleV2:
         trend = 0.5 + change
         return max(0, min(1, trend))
     
-    def assess_risk(self, user_data: Dict) -> Dict:
-        """Complete risk assessment using all 4 models"""
+    def assess_risk(self, user_data: Dict, wallet_address: str = None) -> Dict:
+        """Complete risk assessment using all 4 models with REAL DeFi data"""
+        
+        # Get REAL DeFi data if wallet provided
+        if wallet_address:
+            user_data = self._enrich_with_defi_data(user_data, wallet_address)
         
         # Extract features
         features = self.extract_features(user_data)
@@ -243,6 +256,40 @@ class AIRiskOracleV2:
             'nullifier': f"0x{nullifier}",
             'oracle_address': '0x9e6343BB504Af8a39DB516d61c4Aa0aF36c54678'
         }
+    
+    def _enrich_with_defi_data(self, user_data: Dict, wallet_address: str) -> Dict:
+        """Enrich user data with REAL DeFi metrics"""
+        try:
+            from defi_indexer import fetch_defi_data
+            
+            defi_data = fetch_defi_data(wallet_address)
+            summary = defi_data.get('summary', {})
+            aave = defi_data.get('protocols', {}).get('aave', {})
+            
+            # Update user data with real DeFi metrics
+            user_data['total_borrowed'] = summary.get('total_borrowed_usd', 0)
+            user_data['total_supplied'] = summary.get('total_supplied_usd', 0)
+            user_data['defi_protocols_used'] = summary.get('protocols_used', 0)
+            
+            # Calculate repayment rate from health factor
+            health_factor = aave.get('health_factor', 0)
+            if health_factor > 0:
+                if health_factor >= 2.0:
+                    user_data['repayment_rate'] = 100
+                elif health_factor >= 1.5:
+                    user_data['repayment_rate'] = 95
+                elif health_factor >= 1.2:
+                    user_data['repayment_rate'] = 85
+                else:
+                    user_data['repayment_rate'] = 70
+            
+            # Liquidation risk
+            user_data['liquidation_count'] = 0 if health_factor > 1.5 or health_factor == 0 else 1
+            
+        except Exception as e:
+            print(f"Error enriching with DeFi data: {e}")
+        
+        return user_data
     
     def batch_assess(self, users_data: List[Dict]) -> List[Dict]:
         """Batch assessment for multiple users"""

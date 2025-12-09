@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$metadata": {
+    "uris": {
+      "jsonLdContext": "https://schema.aurapass.xyz/threshold-v1.jsonld",
+      "circuitId": "credentialAtomicQuerySigV2"
+    },
+    "version": "1.0.0",
+    "type": "AuraThresholdProof"
+  },
+  "title": "Aura Threshold Proof Schema",
+  "description": "Prove credit score >= threshold without revealing exact score",
+  "type": "object",
+  "required": ["circuitId", "query"],
+  "properties": {
+    "circuitId": {
+      "type": "string",
+      "const": "credentialAtomicQuerySigV2"
+    },
+    "query": {
+      "type": "object",
+      "required": ["allowedIssuers", "credentialSubject", "type"],
+      "properties": {
+        "allowedIssuers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string",
+          "const": "AuraCreditScoreCredential"
+        },
+        "credentialSubject": {
+          "type": "object",
+          "required": ["creditScore"],
+          "properties": {
+            "creditScore": {
+              "type": "object",
+              "required": ["$gte"],
+              "properties": {
+                "$gte": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000,
+                  "description": "Minimum credit score threshold"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

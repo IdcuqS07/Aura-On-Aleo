@@ -71,8 +71,11 @@ export default function ProofOfHumanity() {
       
       console.log('Enrolling with:', { address, githubCode, twitterCode });
       
+      console.log('Fetching:', `${BACKEND_URL}/api/poh/enroll`);
+      
       const response = await fetch(`${BACKEND_URL}/api/poh/enroll`, {
         method: 'POST',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: address,

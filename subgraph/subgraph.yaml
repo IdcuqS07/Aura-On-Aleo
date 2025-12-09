@@ -31,7 +31,7 @@ dataSources:
     name: CreditPassport
     network: polygon-amoy
     source:
-      address: "0xf85007A48DbD60B678Fa09ff379b8933b7525949"
+      address: "0x1112373c9954B9bbFd91eb21175699b609A1b551"
       abi: CreditPassport
       startBlock: 0
     mapping:

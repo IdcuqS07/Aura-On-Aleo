@@ -32,13 +32,38 @@ const CreditPassport = () => {
         setPassport(passportRes.data.passport);
         loadRiskPrediction();
       }
-      const badgesRes = await axios.get(`${API}/badges/demo/${address}`);
-      setBadges(badgesRes.data.badges || []);
+      
+      // Fetch badges from blockchain
+      await loadBadgesFromBlockchain();
     } catch (error) {
       console.error('Load passport error:', error);
       setPassport(null);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const loadBadgesFromBlockchain = async () => {
+    try {
+      const { ethers } = await import('ethers');
+      const provider = new ethers.JsonRpcProvider('https://rpc-amoy.polygon.technology');
+      const pohContract = new ethers.Contract(
+        '0x7F8b052bD2dfA899E1f41eB7236e818AeE4F6510',
+        ['function hasMinted(address) view returns (bool)'],
+        provider
+      );
+      
+      const hasPohBadge = await pohContract.hasMinted(address);
+      if (hasPohBadge) {
+        setBadges([{
+          id: 'poh_badge',
+          badge_type: 'proof_of_humanity',
+          token_id: 'POH-BADGE',
+          wallet_address: address
+        }]);
+      }
+    } catch (error) {
+      console.error('Load badges error:', error);
     }
   };
 

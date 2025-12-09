@@ -825,6 +825,14 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ Mock routes not available: {e}")
 
+# Include DeFi routes (for real DeFi data)
+try:
+    from defi_routes import router as defi_router
+    app.include_router(defi_router, prefix="/api")
+    logger.info("✅ DeFi routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ DeFi routes not available: {e}")
+
 # Include ZK routes (for proof generation)
 try:
     from zk_routes import zk_bp
@@ -832,6 +840,14 @@ try:
     logger.info("✅ ZK routes loaded")
 except ImportError as e:
     logger.warning(f"⚠️ ZK routes not available: {e}")
+
+# Include Polygon ZK Proof routes
+try:
+    from zk_proof_routes import router as zk_proof_router
+    app.include_router(zk_proof_router)
+    logger.info("✅ Polygon ZK Proof routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Polygon ZK Proof routes not available: {e}")
 
 # CORS handled by nginx - commenting out to avoid duplicate headers
 # app.add_middleware(

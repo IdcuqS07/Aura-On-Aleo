@@ -1,19 +1,28 @@
-const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("💰 Checking wallet balance...\n");
+
+  const [deployer] = await hre.ethers.getSigners();
   
-  console.log("Wallet Address:", deployer.address);
-  console.log("Balance:", ethers.formatEther(balance), "MATIC");
+  console.log("Wallet address:", deployer.address);
   
-  if (balance === 0n) {
-    console.log("\n⚠️  No MATIC found! Get testnet MATIC from:");
-    console.log("   https://faucet.polygon.technology/");
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  const balanceInPOL = hre.ethers.formatEther(balance);
+  
+  console.log("Balance:", balanceInPOL, "POL");
+  
+  if (parseFloat(balanceInPOL) < 0.01) {
+    console.log("\n⚠️  Low balance! Get testnet POL from:");
+    console.log("https://faucet.polygon.technology/");
+  } else {
+    console.log("\n✅ Sufficient balance for deployment");
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

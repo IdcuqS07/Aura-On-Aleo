@@ -5,21 +5,29 @@ Exposes cached subgraph queries
 
 from fastapi import APIRouter, HTTPException
 from typing import Optional
-from graph_client import get_graph_client
-from graph_cache import cached_query, get_cache_stats, invalidate_cache
+try:
+    from graph_client import get_graph_client
+    from graph_cache import cached_query, get_cache_stats, invalidate_cache
+    USE_OLD_CLIENT = True
+except ImportError:
+    from graph_service import get_graph_service
+    USE_OLD_CLIENT = False
 
 router = APIRouter(prefix="/api/graph", tags=["graph"])
 
 @router.get("/badges/{wallet_address}")
 async def get_badges(wallet_address: str):
     """Get all badges for a wallet address"""
-    client = get_graph_client()
-    
-    data = await cached_query(
-        "badges",
-        {"wallet": wallet_address},
-        lambda: client.get_user_badges(wallet_address)
-    )
+    if USE_OLD_CLIENT:
+        client = get_graph_client()
+        data = await cached_query(
+            "badges",
+            {"wallet": wallet_address},
+            lambda: client.get_user_badges(wallet_address)
+        )
+    else:
+        service = get_graph_service()
+        data = service.get_user_badges(wallet_address)
     
     return {
         "success": True,

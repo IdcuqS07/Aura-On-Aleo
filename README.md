@@ -151,9 +151,9 @@ Access the application at `http://localhost:3000`
   
 
 ### Wave 3: Expansion (In Progress)
-- 🔄 **Real ZK Proofs**: Polygon ID integration
-- 🔄 **The Graph Subgraph**: Event indexing and historical data
-- 🔄 **Real DeFi Data**: Aave, Uniswap, Compound integration
+- ✅ **Real DeFi Data**: Aave, Uniswap, Compound integration
+- ✅ **The Graph Subgraph**: Event indexing and historical data
+- ✅ **ZK Proofs**: Polygon ID integration (Mock ready) (NEW)
 - 🔄 **Cross-Chain Layer (AuraX)**: Multi-chain support
 - 🔄 **Reputation DAO**: Decentralized governance
 - 🔄 **Dynamic Oracle Service**: Continuous 5-min updates (currently disabled)
@@ -189,6 +189,13 @@ Access the application at `http://localhost:3000`
 - `POST /api/ai-oracle/refresh/{address}` - Force refresh (rate-limited)
 - `GET /api/ai-oracle/stats` - Oracle statistics
 - `GET /api/ai-oracle/health` - Health check
+
+### DeFi Data (NEW)
+- `GET /api/defi/{wallet_address}` - Get all DeFi protocol data
+- `GET /api/defi/{wallet_address}/aave` - Get Aave positions
+- `GET /api/defi/{wallet_address}/uniswap` - Get Uniswap V3 positions
+- `GET /api/defi/{wallet_address}/risk` - Get DeFi risk score
+- `GET /api/defi/health` - DeFi indexer health check
 
 ### Analytics
 - `GET /api/analytics` - Get ecosystem analytics
@@ -239,6 +246,8 @@ npx hardhat run scripts/deploy.js --network localhost
 ## 📚 Documentation
 
 - [Final TODO List](AURA_FINAL_TODO.md) - Complete development roadmap
+- [Wave 3 Implementation](WAVE3_IMPLEMENTATION.md) - Wave 3 progress tracker
+- [Wave 3 Summary](WAVE3_SUMMARY.md) - Real DeFi Data integration
 - [Data Flow Diagram](AURA_PROTOCOL_DATA_FLOW.md) - System architecture
 - [Passport Data Flow](passport-data-flow.md) - User journey flow
 - [Deployment Guide](DEPLOYMENT_GUIDE.md) - Deploy to Polygon Amoy
@@ -273,7 +282,7 @@ MIT License - see [LICENSE](LICENSE) for details
 **Version**: 1.1  
 **Wave 1**: ✅ 100% Complete  
 **Wave 2**: ✅ 100% Complete  
-**Wave 3**: 🔄 25% Complete  
+**Wave 3**: 🔄 80% Complete (DeFi ✅, Graph ✅, ZK ✅)  
 **Production**: ✅ Deployed & Live
 
 **Last Updated**: November 2025

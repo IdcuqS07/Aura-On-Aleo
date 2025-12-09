@@ -1,0 +1,57 @@
+═══════════════════════════════════════════════════════════
+  AURA PROTOCOL - THE GRAPH DEPLOYMENT QUICK REFERENCE
+═══════════════════════════════════════════════════════════
+
+📋 PREREQUISITES
+✓ Schema created
+✓ Mappings written  
+✓ Build successful
+
+🚀 DEPLOYMENT COMMANDS
+
+1. Install CLI:
+   npm install -g @graphprotocol/graph-cli
+
+2. Create subgraph:
+   → https://thegraph.com/studio/
+   → Click "Create a Subgraph"
+   → Name: aura-protocol
+
+3. Authenticate:
+   graph auth --studio <YOUR_DEPLOY_KEY>
+
+4. Deploy:
+   cd subgraph
+   ./deploy-subgraph.sh aura-protocol
+   
+   OR manually:
+   graph deploy --studio aura-protocol
+
+5. Version:
+   Enter: v0.1.0
+
+6. Update backend/.env:
+   SUBGRAPH_URL=https://api.studio.thegraph.com/query/<ID>/aura-protocol/version/latest
+
+═══════════════════════════════════════════════════════════
+
+🧪 TEST QUERIES
+
+# Global stats
+{ globalStats(id: "global") { totalBadges totalPassports } }
+
+# Recent badges
+{ badges(first: 5, orderBy: issuedAt, orderDirection: desc) { tokenId badgeType } }
+
+# User data
+{ user(id: "0x...") { totalBadges badges { badgeType } } }
+
+═══════════════════════════════════════════════════════════
+
+🔗 LINKS
+
+Studio:    https://thegraph.com/studio/
+Subgraph:  https://thegraph.com/studio/subgraph/aura-protocol/
+Docs:      https://thegraph.com/docs/
+
+═══════════════════════════════════════════════════════════

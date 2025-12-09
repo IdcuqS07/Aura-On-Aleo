@@ -50,8 +50,8 @@ const PartnerVerify = () => {
         {/* Header */}
         <div className="mb-8 text-center fade-in">
           <Shield className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-          <h1 className="text-4xl font-bold text-white mb-2">Partner Verification</h1>
-          <p className="text-gray-400">Verify Aura Protocol Passport validity</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Passport Authentication</h1>
+          <p className="text-gray-400">High-assurance verification for Aura Credit & Identity Passports</p>
         </div>
 
         {/* Verification Form */}

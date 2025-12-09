@@ -85,8 +85,8 @@ async def assess_risk(
             'liquidation_count': data_sources.get('defi', {}).get('liquidations', 0)
         })
         
-        # Run AI assessment
-        assessment = ai_oracle_v2.assess_risk(user_data)
+        # Run AI assessment with REAL DeFi data
+        assessment = ai_oracle_v2.assess_risk(user_data, wallet_address=request.wallet_address)
         
         # Update API key usage
         await _db.api_keys.update_one(
