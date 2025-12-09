@@ -50,11 +50,10 @@ describe("ZKVerifier", function () {
 
       await verifier.verifyProof(proof, publicSignals);
       
-      const proofHash = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(
-          ["uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[]"],
-          [proof.a, proof.b, proof.c, publicSignals]
-        )
+      // Use encodePacked to match contract's keccak256(abi.encodePacked(...))
+      const proofHash = ethers.solidityPackedKeccak256(
+        ["uint256[2]", "uint256[2][2]", "uint256[2]", "uint256[]"],
+        [proof.a, proof.b, proof.c, publicSignals]
       );
 
       const isVerified = await verifier.isProofVerified(proofHash);

@@ -51,65 +51,59 @@ const DeFiPositions = ({ walletAddress }) => {
   };
 
   const getRiskBadge = (riskScore) => {
-    if (riskScore < 40) return <Badge className="bg-green-500">Low Risk</Badge>;
-    if (riskScore < 70) return <Badge className="bg-yellow-500">Medium Risk</Badge>;
-    return <Badge className="bg-red-500">High Risk</Badge>;
+    if (riskScore < 40) return <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm font-semibold border border-green-500/30">Low Risk</span>;
+    if (riskScore < 70) return <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-semibold border border-yellow-500/30">Medium Risk</span>;
+    return <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-semibold border border-red-500/30">High Risk</span>;
   };
 
   return (
     <div className="space-y-4">
       {/* Summary Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="w-5 h-5" />
-            DeFi Portfolio Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Total Supplied</p>
-              <p className="text-2xl font-bold text-green-600">
-                ${summary.total_supplied_usd?.toLocaleString() || '0'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Borrowed</p>
-              <p className="text-2xl font-bold text-orange-600">
-                ${summary.total_borrowed_usd?.toLocaleString() || '0'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Net Position</p>
-              <p className={`text-2xl font-bold ${summary.net_position_usd >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${summary.net_position_usd?.toLocaleString() || '0'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Protocols Used</p>
-              <p className="text-2xl font-bold text-purple-600">
-                {summary.protocols_used || 0}
-              </p>
-            </div>
+      <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 mb-4">
+        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-purple-400" />
+          DeFi Portfolio Summary
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Total Supplied</p>
+            <p className="text-2xl font-bold text-green-400">
+              ${summary.total_supplied_usd?.toLocaleString() || '0'}
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Total Borrowed</p>
+            <p className="text-2xl font-bold text-orange-400">
+              ${summary.total_borrowed_usd?.toLocaleString() || '0'}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Net Position</p>
+            <p className={`text-2xl font-bold ${summary.net_position_usd >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              ${summary.net_position_usd?.toLocaleString() || '0'}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-400 mb-2">Protocols Used</p>
+            <p className="text-2xl font-bold text-purple-400">
+              {summary.protocols_used || 0}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Aave Position */}
       {aave.total_collateral_usd > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Aave V3 Position</span>
-              {aave.health_factor > 0 && (
-                <span className={`text-sm font-normal ${getHealthColor(aave.health_factor)}`}>
-                  Health Factor: {aave.health_factor.toFixed(2)}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 mb-4">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white">Aave V3 Position</h3>
+            {aave.health_factor > 0 && (
+              <span className={`text-sm font-semibold ${getHealthColor(aave.health_factor)}`}>
+                Health Factor: {aave.health_factor.toFixed(2)}
+              </span>
+            )}
+          </div>
+          <div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -139,35 +133,43 @@ const DeFiPositions = ({ walletAddress }) => {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Risk Assessment */}
-      <Card>
-        <CardHeader>
-          <CardTitle>DeFi Risk Assessment</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-2">Risk Score</p>
-              <div className="flex items-center gap-3">
-                <div className="text-3xl font-bold">
-                  {summary.risk_score || 50}/100
-                </div>
-                {getRiskBadge(summary.risk_score || 50)}
+      <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+        <h3 className="text-xl font-bold text-white mb-6">DeFi Risk Assessment</h3>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-400 mb-3">Risk Score</p>
+            <div className="flex items-center gap-4">
+              <div className="text-4xl font-bold text-white">
+                {summary.risk_score || 50}<span className="text-2xl text-gray-500">/100</span>
               </div>
+              {getRiskBadge(summary.risk_score || 50)}
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Data Source</p>
-              <p className="text-sm font-medium">
-                {defiData.is_real_data ? '🟢 Live On-chain' : '🟡 Mock Data'}
+            <div className="mt-4 w-full bg-gray-700 rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full transition-all ${
+                  (summary.risk_score || 50) < 40 ? 'bg-green-500' : 
+                  (summary.risk_score || 50) < 70 ? 'bg-yellow-500' : 'bg-red-500'
+                }`}
+                style={{ width: `${summary.risk_score || 50}%` }}
+              ></div>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-400 mb-2">Data Source</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800/50">
+              <span className={`w-2 h-2 rounded-full ${defiData.is_real_data ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
+              <p className="text-sm font-medium text-white">
+                {defiData.is_real_data ? 'Live On-chain' : 'Mock Data'}
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

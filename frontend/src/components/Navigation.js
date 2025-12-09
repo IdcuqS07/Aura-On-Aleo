@@ -1,26 +1,60 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Menu, X, Wallet, LogOut } from 'lucide-react';
+import { Shield, Menu, X, Wallet, LogOut, ChevronDown } from 'lucide-react';
 import { useWallet } from './WalletContext';
 
 const ADMIN_WALLETS = ['0xc3ece9ac328cb232ddb0bc677d2e980a1a3d3974'];
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [passportDropdown, setPassportDropdown] = useState(false);
+  const [developerDropdown, setDeveloperDropdown] = useState(false);
+  const [passportTimeout, setPassportTimeout] = useState(null);
+  const [developerTimeout, setDeveloperTimeout] = useState(null);
   const location = useLocation();
   const { address, isConnected, isConnecting, connectWallet, disconnectWallet } = useWallet();
 
   const isAdmin = isConnected && ADMIN_WALLETS.includes(address?.toLowerCase());
 
+  const handleMouseEnter = (type) => {
+    if (type === 'passport') {
+      if (passportTimeout) clearTimeout(passportTimeout);
+      setPassportDropdown(true);
+    } else {
+      if (developerTimeout) clearTimeout(developerTimeout);
+      setDeveloperDropdown(true);
+    }
+  };
+
+  const handleMouseLeave = (type) => {
+    if (type === 'passport') {
+      const timeout = setTimeout(() => setPassportDropdown(false), 200);
+      setPassportTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => setDeveloperDropdown(false), 200);
+      setDeveloperTimeout(timeout);
+    }
+  };
+
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/poh', label: 'Verify' },
-    { path: '/passport', label: 'Passport' },
+    { 
+      label: 'Passport',
+      dropdown: [
+        { path: '/passport', label: 'My Passport' },
+        { path: '/dashboard', label: 'Portfolio' },
+        { path: '/badges', label: 'Badges' },
+      ]
+    },
     { path: '/oracle', label: 'AI Oracle' },
-    { path: '/badges', label: 'Badges' },
-    { path: '/partner/verify', label: 'Verify Passport' },
-    { path: '/api', label: 'API' },
-    { path: '/analytics', label: 'Analytics' },
+    { 
+      label: 'Developer',
+      dropdown: [
+        { path: '/api', label: 'API Docs' },
+        { path: '/partner/verify', label: 'Partner Portal' },
+      ]
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -44,19 +78,53 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex space-x-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                data-testid={`nav-${item.label.toLowerCase()}`}
-                className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive(item.path)
-                    ? 'text-purple-400 border-b-2 border-purple-400'
-                    : 'text-gray-300 hover:text-white hover:border-b-2 hover:border-gray-500'
-                } pb-1`}
-              >
-                {item.label}
-              </Link>
+            {navItems.map((item, idx) => (
+              item.dropdown ? (
+                <div key={idx} className="relative group">
+                  <button
+                    className="text-sm font-medium text-gray-300 hover:text-white transition-colors flex items-center gap-1 pb-1"
+                    onMouseEnter={() => handleMouseEnter(item.label === 'Passport' ? 'passport' : 'developer')}
+                    onMouseLeave={() => handleMouseLeave(item.label === 'Passport' ? 'passport' : 'developer')}
+                  >
+                    {item.label}
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  {((item.label === 'Passport' && passportDropdown) || (item.label === 'Developer' && developerDropdown)) && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-48 bg-slate-900/95 backdrop-blur-lg border border-purple-500/20 rounded-lg shadow-xl py-2 z-50"
+                      onMouseEnter={() => handleMouseEnter(item.label === 'Passport' ? 'passport' : 'developer')}
+                      onMouseLeave={() => handleMouseLeave(item.label === 'Passport' ? 'passport' : 'developer')}
+                    >
+                      {item.dropdown.map((subItem) => (
+                        <Link
+                          key={subItem.path}
+                          to={subItem.path}
+                          className={`block px-4 py-2 text-sm transition-colors ${
+                            isActive(subItem.path)
+                              ? 'text-purple-400 bg-purple-500/10'
+                              : 'text-gray-300 hover:text-white hover:bg-slate-800'
+                          }`}
+                        >
+                          {subItem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  data-testid={`nav-${item.label.toLowerCase()}`}
+                  className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                    isActive(item.path)
+                      ? 'text-purple-400 border-b-2 border-purple-400'
+                      : 'text-gray-300 hover:text-white hover:border-b-2 hover:border-gray-500'
+                  } pb-1`}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </div>
 
@@ -105,21 +173,43 @@ const Navigation = () => {
       {isOpen && (
         <div className="md:hidden bg-slate-900/95 backdrop-blur-lg" data-testid="mobile-menu">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive(item.path)
-                    ? 'text-purple-400 bg-slate-800'
-                    : 'text-gray-300 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                {item.label}
-              </Link>
+            {navItems.map((item, idx) => (
+              item.dropdown ? (
+                <div key={idx}>
+                  <div className="px-3 py-2 text-base font-medium text-gray-400">
+                    {item.label}
+                  </div>
+                  {item.dropdown.map((subItem) => (
+                    <Link
+                      key={subItem.path}
+                      to={subItem.path}
+                      onClick={() => setIsOpen(false)}
+                      className={`block px-6 py-2 rounded-md text-sm ${
+                        isActive(subItem.path)
+                          ? 'text-purple-400 bg-slate-800'
+                          : 'text-gray-300 hover:text-white hover:bg-slate-800'
+                      }`}
+                    >
+                      {subItem.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive(item.path)
+                      ? 'text-purple-400 bg-slate-800'
+                      : 'text-gray-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
-            <div className="pt-2">
+            <div className="pt-2 border-t border-gray-700 mt-2">
               {isConnected ? (
                 <div className="space-y-2">
                   <div className="px-3 py-2 bg-purple-600/20 border border-purple-500/30 rounded-lg">

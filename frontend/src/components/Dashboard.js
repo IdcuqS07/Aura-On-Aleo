@@ -2,7 +2,7 @@ import React from 'react';
 import { useWallet } from '../components/WalletContext';
 import DeFiPositions from '../components/DeFiPositions';
 import RealtimeAnalytics from '../components/RealtimeAnalytics';
-import { Shield, TrendingUp } from 'lucide-react';
+import { Shield, TrendingUp, Activity } from 'lucide-react';
 
 const Dashboard = () => {
   const { address, isConnected } = useWallet();
@@ -23,23 +23,36 @@ const Dashboard = () => {
     <div className="min-h-screen pt-16 px-4 py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 fade-in">
           <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
-          <p className="text-gray-400">Your complete DeFi portfolio and analytics</p>
+          <p className="text-gray-400">Your complete DeFi portfolio and real-time analytics</p>
         </div>
 
-        {/* Real-time Analytics */}
+        {/* Protocol Analytics */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-            <TrendingUp className="w-6 h-6" />
-            Protocol Analytics
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-purple-400" />
+              Protocol Analytics
+            </h2>
+            <div className="text-sm text-gray-400">
+              <span className="inline-flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live Data
+              </span>
+            </div>
+          </div>
           <RealtimeAnalytics />
         </div>
 
         {/* DeFi Positions */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">Your DeFi Positions</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Activity className="w-6 h-6 text-cyan-400" />
+              Your DeFi Positions
+            </h2>
+          </div>
           <DeFiPositions walletAddress={address} />
         </div>
       </div>

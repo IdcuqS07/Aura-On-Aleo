@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Security
 from dotenv import load_dotenv
-# from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 import os
@@ -849,13 +849,13 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ Polygon ZK Proof routes not available: {e}")
 
-# CORS handled by nginx - commenting out to avoid duplicate headers
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_credentials=True,
-#     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+# CORS middleware for local development
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["http://localhost:3000", "http://localhost:9000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
