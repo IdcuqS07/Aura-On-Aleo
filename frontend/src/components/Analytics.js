@@ -16,49 +16,29 @@ const Analytics = () => {
 
   const loadAnalytics = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://159.65.134.137:9000';
-      const endpoint = '/api/analytics/onchain';
-      console.log('Fetching analytics from:', `${backendUrl}${endpoint}`);
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
+      console.log('Fetching analytics from:', `${backendUrl}/api/analytics`);
       
-      const response = await fetch(`${backendUrl}${endpoint}`);
+      const response = await fetch(`${backendUrl}/api/analytics`);
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Analytics data:', data);
-        setAnalytics(data);
-      } else {
-        console.error('Analytics API error:', response.status);
-        // Use fallback data
-        const fallbackAnalytics = {
-          total_users: 16,
-          verified_users: 12,
-          total_credit_passports: 7,
-          average_credit_score: 742.5,
-          total_transaction_volume: 8.0,
-          risk_distribution: {
-            low: 4,
-            medium: 2,
-            high: 1
-          }
-        };
-        setAnalytics(fallbackAnalytics);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
+      
+      const data = await response.json();
+      console.log('Analytics data received:', data);
+      setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);
-      // Use fallback data on error
-      const fallbackAnalytics = {
-        total_users: 16,
-        verified_users: 12,
-        total_credit_passports: 7,
+      // Set fallback data
+      setAnalytics({
+        total_users: 59,
+        verified_users: 19,
+        total_credit_passports: 16,
         average_credit_score: 742.5,
-        total_transaction_volume: 8.0,
-        risk_distribution: {
-          low: 4,
-          medium: 2,
-          high: 1
-        }
-      };
-      setAnalytics(fallbackAnalytics);
+        total_transaction_volume: 29.0,
+        risk_distribution: { high: 16 }
+      });
     } finally {
       setLoading(false);
     }

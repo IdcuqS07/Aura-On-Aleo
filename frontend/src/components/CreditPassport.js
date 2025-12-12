@@ -70,7 +70,7 @@ const CreditPassport = () => {
   const loadRiskPrediction = async () => {
     try {
       setLoadingRisk(true);
-      const res = await axios.post(`${API}/oracle/risk-score`, {
+      const res = await axios.post(`${API}/ai-oracle/assess-public`, {
         wallet_address: address
       });
       if (res.data.success) {

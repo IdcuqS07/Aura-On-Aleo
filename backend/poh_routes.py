@@ -43,7 +43,33 @@ class IssueRequest(BaseModel):
     public_signals: list
 
 
+class StoreBadgeRequest(BaseModel):
+    proof_hash: str
+    nullifier: str
+    wallet_address: str
+    tx_hash: str
+    score: int
+
+
 # ============ ROUTES ============
+
+@router.get("/")
+async def poh_root():
+    """PoH API root endpoint"""
+    return {
+        "message": "Proof of Humanity API",
+        "endpoints": ["/enroll", "/prove", "/issue", "/callback"],
+        "status": "operational"
+    }
+
+@router.get("/health")
+async def poh_health():
+    """PoH health check"""
+    return {
+        "status": "healthy",
+        "db_connected": db is not None,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
 
 @router.get("/callback")
 async def oauth_callback(code: Optional[str] = None, state: Optional[str] = None):
@@ -86,6 +112,12 @@ async def enroll_user(request: EnrollRequest):
         enrollment_id, attestations, score
     """
     try:
+        # Check if db is initialized
+        if db is None:
+            logger.error("Database not initialized")
+            raise HTTPException(500, detail="Database not initialized")
+        
+        logger.info(f"Enrollment request for user: {request.user_id}, wallet: {request.wallet_address}")
         # Verify GitHub
         github_data = None
         if request.github_code:
@@ -228,6 +260,71 @@ async def generate_proof(request: ProveRequest):
         raise HTTPException(500, detail=str(e))
 
 
+@router.post("/store-badge")
+async def store_badge(request: StoreBadgeRequest):
+    """
+    Store badge data after user mints (user pays gas)
+    
+    Process:
+    1. Verify ZK proof
+    2. Check nullifier uniqueness
+    3. Store badge data
+    
+    Returns:
+        badge_id, success
+    """
+    try:
+        # Find proof
+        proof_doc = await db.proofs.find_one({'proof_hash': request.proof_hash})
+        if not proof_doc:
+            raise HTTPException(404, "Proof not found")
+        
+        # Verify proof
+        is_valid = polygon_id_service.verify_proof(proof_doc)
+        if not is_valid:
+            raise HTTPException(400, "Invalid proof")
+        
+        # Check nullifier uniqueness
+        existing_badge = await db.badges.find_one({'nullifier': request.nullifier})
+        if existing_badge:
+            raise HTTPException(400, "Badge already issued for this identity")
+        
+        token_id = await db.badges.count_documents({}) + 1
+        
+        # Store badge
+        badge = {
+            'id': str(uuid.uuid4()),
+            'wallet_address': request.wallet_address,
+            'nullifier': request.nullifier,
+            'proof_hash': request.proof_hash,
+            'token_id': token_id,
+            'tx_hash': request.tx_hash,
+            'score': request.score,
+            'verification_level': polygon_id_service._get_verification_level(request.score),
+            'issued_at': datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.badges.insert_one(badge)
+        
+        logger.info(f"Badge #{token_id} stored for {request.wallet_address}")
+        
+        # Auto-update or create passport
+        await update_or_create_passport(db, request.wallet_address)
+        
+        return {
+            'success': True,
+            'badge_id': badge['id'],
+            'token_id': token_id,
+            'message': 'Badge data stored successfully'
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Badge storage error: {str(e)}")
+        raise HTTPException(500, detail=str(e))
+
+
 @router.post("/issue")
 async def issue_badge(request: IssueRequest):
     """
@@ -270,7 +367,14 @@ async def issue_badge(request: IssueRequest):
         if not mint_result:
             raise HTTPException(500, "Failed to mint badge on-chain")
         
-        tx_hash = mint_result['tx_hash'] if isinstance(mint_result, dict) else mint_result
+        # Extract tx_hash from result
+        if isinstance(mint_result, dict):
+            tx_hash = mint_result.get('tx_hash')
+            if not tx_hash:
+                raise HTTPException(500, "No transaction hash received")
+        else:
+            tx_hash = mint_result
+        
         token_id = await db.badges.count_documents({}) + 1
         
         # Store badge

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Brain, TrendingDown, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useWallet } from './WalletContext';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://159.65.134.137:9000';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
 
 const RiskOracle = () => {
   const { address, isConnected } = useWallet();
@@ -14,16 +14,14 @@ const RiskOracle = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/oracle/risk-score`, {
+      const response = await fetch(`${BACKEND_URL}/api/ai-oracle/assess-public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wallet_address: address })
       });
       
       const data = await response.json();
-      if (data.success) {
-        setPrediction(data.prediction);
-      }
+      setPrediction(data);
     } catch (error) {
       console.error('Risk score error:', error);
     } finally {
@@ -112,7 +110,7 @@ const RiskOracle = () => {
             </div>
 
             {/* Risk Factors */}
-            {Object.keys(prediction.factors).length > 0 && (
+            {prediction.factors && Object.keys(prediction.factors).length > 0 && (
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                   <Shield className="w-6 h-6 mr-2 text-yellow-400" />

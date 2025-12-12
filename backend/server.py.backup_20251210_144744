@@ -47,6 +47,8 @@ async def lifespan(app: FastAPI):
     set_db(db)
     import poh_routes
     poh_routes.set_db(db)
+    # import monitoring_routes
+    # monitoring_routes.set_db(db)
     
     # Start monitoring
     # from monitor_runner import run_monitor
@@ -847,17 +849,11 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ Polygon ZK Proof routes not available: {e}")
 
-# CORS middleware
+# CORS middleware for local development
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:9000",
-        "http://localhost:9002",
-        "https://www.aurapass.xyz",
-        "https://api.aurapass.xyz"
-    ],
+    allow_origins=["http://localhost:3000", "http://localhost:9000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
