@@ -1,0 +1,11 @@
+{
+  "network": "bscTestnet",
+  "chainId": 97,
+  "deployer": "0xC3EcE9AC328CB232dDB0BC677d2e980a1a3D3974",
+  "timestamp": "2026-01-27T15:31:19.503Z",
+  "contracts": {
+    "SimpleZKBadge": "0x36C14E63D040D20e7259d7e5f03F43f7710df8b6",
+    "CreditPassport": "0x98Ea8DA03Cf68152Eb54608161F2347ee36C9259",
+    "ProofRegistry": "0x1Fa89b9EAec5D2AbcfE02548e9873330000C32C7"
+  }
+}

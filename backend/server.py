@@ -831,6 +831,14 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ DeFi routes not available: {e}")
 
+# Include Multi-Chain routes (Wave 6)
+try:
+    from multichain_routes import router as multichain_router
+    app.include_router(multichain_router, prefix="/api")
+    logger.info("✅ Multi-Chain routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Multi-Chain routes not available: {e}")
+
 # Include ZK routes (for proof generation)
 try:
     from zk_routes import zk_bp

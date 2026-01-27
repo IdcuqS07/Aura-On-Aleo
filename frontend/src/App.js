@@ -22,6 +22,7 @@ import LiveDashboard from '@/components/LiveDashboard';
 import EnhancedLiveDashboard from '@/components/EnhancedLiveDashboard';
 import ThresholdProof from '@/components/ThresholdProof';
 import PartnerVerify from '@/components/PartnerVerify';
+import MultiChainContracts from '@/components/MultiChainContracts';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
             <Route path="/monitor/enhanced" element={<EnhancedLiveDashboard />} />
             <Route path="/threshold" element={<ThresholdProof />} />
             <Route path="/partner/verify" element={<PartnerVerify />} />
+            <Route path="/contracts" element={<MultiChainContracts />} />
           </Routes>
           <Footer />
         </BrowserRouter>

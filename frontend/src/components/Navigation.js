@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, Menu, X, Wallet, LogOut, ChevronDown } from 'lucide-react';
 import { useWallet } from './WalletContext';
+import NetworkSelector from './NetworkSelector';
 
 const ADMIN_WALLETS = ['0xc3ece9ac328cb232ddb0bc677d2e980a1a3d3974'];
 
@@ -11,6 +12,7 @@ const Navigation = () => {
   const [developerDropdown, setDeveloperDropdown] = useState(false);
   const [passportTimeout, setPassportTimeout] = useState(null);
   const [developerTimeout, setDeveloperTimeout] = useState(null);
+  const [selectedNetwork, setSelectedNetwork] = useState('polygon_amoy');
   const location = useLocation();
   const { address, isConnected, isConnecting, connectWallet, disconnectWallet } = useWallet();
 
@@ -53,6 +55,7 @@ const Navigation = () => {
       dropdown: [
         { path: '/api', label: 'API Docs' },
         { path: '/partner/verify', label: 'Partner Portal' },
+        { path: '/contracts', label: 'Multi-Chain' },
       ]
     },
   ];
@@ -129,7 +132,11 @@ const Navigation = () => {
           </div>
 
           {/* Connect Wallet Button */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex items-center space-x-4">
+            <NetworkSelector 
+              currentNetwork={selectedNetwork}
+              onNetworkChange={(network) => setSelectedNetwork(network.id)}
+            />
             {isConnected ? (
               <div className="flex items-center space-x-2">
                 <div className="px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center space-x-2">

@@ -1,0 +1,11 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "deployer": "0xC3EcE9AC328CB232dDB0BC677d2e980a1a3D3974",
+  "timestamp": "2026-01-27T15:29:38.148Z",
+  "contracts": {
+    "SimpleZKBadge": "0x296DB144E62C8C826bffA4503Dc9Fbf29F25D44B",
+    "CreditPassport": "0x206E87B235661B13acC8E0bB7D39F9CA8B8Ade83",
+    "ProofRegistry": "0xb697a2D5F57718c26D55cBC7bE4A5b380465bB0f"
+  }
+}
