@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, Menu, X, Wallet, LogOut, ChevronDown } from 'lucide-react';
-import { useWallet } from './WalletContext';
+import { useWallet as useEVMWallet } from './WalletContext';
+import { useWallet as useAleoWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { WalletMultiButton } from '@demox-labs/aleo-wallet-adapter-reactui';
 import NetworkSelector from './NetworkSelector';
 import WalletSelector from './WalletSelector';
 
@@ -16,7 +18,12 @@ const Navigation = () => {
   const [developerTimeout, setDeveloperTimeout] = useState(null);
   const [selectedNetwork, setSelectedNetwork] = useState('aleo_testnet');
   const location = useLocation();
-  const { address, isConnected, isConnecting, walletType, connectWallet, disconnectWallet } = useWallet();
+  const { address: evmAddress, isConnected: evmConnected, isConnecting: evmConnecting, walletType, connectWallet, disconnectWallet } = useEVMWallet();
+  const { publicKey: aleoAddress, connected: aleoConnected } = useAleoWallet();
+  
+  const isConnected = evmConnected || aleoConnected;
+  const address = aleoConnected ? aleoAddress : evmAddress;
+  const isConnecting = evmConnecting;
 
   const isAdmin = isConnected && ADMIN_WALLETS.includes(address?.toLowerCase());
 
@@ -140,26 +147,29 @@ const Navigation = () => {
               currentNetwork={selectedNetwork}
               onNetworkChange={(network) => setSelectedNetwork(network.id)}
             />
-            {isConnected ? (
-              <div className="flex items-center space-x-2">
-                <div className="px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-white font-mono text-sm">{formatAddress(address)}</span>
-                  {walletType && (
-                    <span className="text-xs text-purple-400">({walletType === 'aleo' ? 'Aleo' : 'EVM'})</span>
-                  )}
+            
+            {/* Show Aleo Wallet Button */}
+            <WalletMultiButton className="!bg-gradient-to-r !from-purple-600 !to-blue-600 !text-white !rounded-lg !font-medium hover:!shadow-lg hover:!shadow-purple-500/50 !transition-all !px-6 !py-2" />
+            
+            {/* Show EVM Wallet if not Aleo connected */}
+            {!aleoConnected && (
+              evmConnected ? (
+                <div className="flex items-center space-x-2">
+                  <div className="px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-white font-mono text-sm">{formatAddress(evmAddress)}</span>
+                    <span className="text-xs text-purple-400">(EVM)</span>
+                  </div>
+                  <button
+                    onClick={disconnectWallet}
+                    className="p-2 text-gray-400 hover:text-white transition"
+                    data-testid="disconnect-wallet-btn"
+                    title="Disconnect Wallet"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={disconnectWallet}
-                  className="p-2 text-gray-400 hover:text-white transition"
-                  data-testid="disconnect-wallet-btn"
-                  title="Disconnect Wallet"
-                >
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-end">
+              ) : (
                 <button
                   onClick={() => setShowWalletSelector(true)}
                   disabled={isConnecting}
@@ -167,9 +177,9 @@ const Navigation = () => {
                   data-testid="connect-wallet-btn"
                 >
                   <Wallet className="w-5 h-5" />
-                  <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+                  <span>{isConnecting ? 'Connecting...' : 'Connect EVM'}</span>
                 </button>
-              </div>
+              )
             )}
           </div>
 
