@@ -74,39 +74,11 @@ export const WalletProvider = ({ children }) => {
             // Check if Leo Wallet is connected
             if (!window.leoWallet.publicKey || !window.leoWallet.permission) {
               console.log('⚠️ Leo Wallet not connected to this site');
+              console.log('Note: Leo Wallet connect() has a known bug. Please unlock wallet manually.');
               
-              // Try silent connect
-              try {
-                console.log('Attempting silent connect...');
-                
-                // Wrap in setTimeout to avoid blocking
-                setTimeout(() => {
-                  try {
-                    window.leoWallet.connect();
-                  } catch (e) {
-                    // Ignore
-                  }
-                }, 0);
-                
-                // Wait for publicKey
-                for (let i = 0; i < 100; i++) {
-                  await new Promise(resolve => setTimeout(resolve, 100));
-                  if (window.leoWallet.publicKey) {
-                    console.log('✅ Got publicKey after', i * 100, 'ms');
-                    break;
-                  }
-                }
-                
-                if (!window.leoWallet.publicKey) {
-                  setError('Leo Wallet connection required. Please approve the connection popup.');
-                  setIsConnecting(false);
-                  return;
-                }
-              } catch (err) {
-                setError('Failed to connect Leo Wallet. Please try again.');
-                setIsConnecting(false);
-                return;
-              }
+              setError('Please unlock Leo Wallet extension. The app will auto-connect within a few seconds.');
+              setIsConnecting(false);
+              return;
             }
             
             // Check network
