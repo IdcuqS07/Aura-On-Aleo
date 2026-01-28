@@ -23,6 +23,7 @@ import EnhancedLiveDashboard from '@/components/EnhancedLiveDashboard';
 import ThresholdProof from '@/components/ThresholdProof';
 import PartnerVerify from '@/components/PartnerVerify';
 import MultiChainContracts from '@/components/MultiChainContracts';
+import AleoIntegration from '@/pages/AleoIntegration';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/badges" element={<ZKBadgeDisplay />} />
             <Route path="/api" element={<APIDashboard />} />
             <Route path="/verify" element={<VerifyIdentity />} />
+            <Route path="/aleo" element={<AleoIntegration />} />
 
             <Route path="/poh" element={<ProofOfHumanity />} />
             <Route path="/poh/callback" element={<ProofOfHumanity />} />

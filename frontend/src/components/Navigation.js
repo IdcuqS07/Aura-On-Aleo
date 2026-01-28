@@ -50,6 +50,7 @@ const Navigation = () => {
       ]
     },
     { path: '/oracle', label: 'AI Oracle' },
+    { path: '/aleo', label: 'Aleo' },
     { 
       label: 'Developer',
       dropdown: [

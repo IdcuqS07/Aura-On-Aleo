@@ -1,62 +1,91 @@
-# 🚀 Deploy Production - 21 Nov 2024
+# Deploy Aura-On-Aleo to Vercel - Manual Steps
 
-## VPS Info
-- IP: 159.65.134.137
-- Domain: aurapass.xyz (setup DNS dulu)
+## ✅ Configuration Ready
 
-## Quick Deploy (3 Langkah)
+Files created and pushed to GitHub:
+- ✅ `vercel.json` - Vercel configuration
+- ✅ `build.json` - Build settings  
+- ✅ `frontend/package.json` - Updated with vercel-build
+- ✅ `VERCEL_DEPLOY.md` - Deployment guide
 
-### 1️⃣ Deploy ke VPS
+## 🚀 Deploy Now
+
+### Method 1: Vercel Dashboard (Easiest)
+
+1. **Go to**: https://vercel.com/new
+
+2. **Import Git Repository**:
+   - Click "Import Git Repository"
+   - Select: `IdcuqS07/Aura-On-Aleo`
+   - Click "Import"
+
+3. **Configure Project**:
+   ```
+   Framework Preset: Create React App
+   Root Directory: frontend
+   Build Command: yarn build
+   Output Directory: build
+   Install Command: yarn install
+   ```
+
+4. **Environment Variables**:
+   ```
+   REACT_APP_BACKEND_URL = https://api.aurapass.xyz
+   ```
+
+5. **Click "Deploy"** 🚀
+
+### Method 2: Vercel CLI
+
 ```bash
-cd "/Users/idcuq/Documents/Aura V.1.1/Aura-V.1.0 "
-./production-deploy.sh 159.65.134.137
+# Login first
+vercel login
+
+# Deploy from root
+vercel --prod
+
+# Or from frontend
+cd frontend
+vercel --prod
 ```
 
-### 2️⃣ Setup Domain & SSL
+## 📋 Deployment Checklist
+
+- ✅ Repository: https://github.com/IdcuqS07/Aura-On-Aleo
+- ✅ Configuration files pushed
+- ✅ Frontend ready in `/frontend` directory
+- ⏳ Deploy via Vercel dashboard
+- ⏳ Add environment variables
+- ⏳ Test deployment
+
+## 🔗 Expected URLs
+
+After deployment:
+- **Frontend**: `https://aura-on-aleo.vercel.app`
+- **API Proxy**: `https://aura-on-aleo.vercel.app/api/*` → `https://api.aurapass.xyz/api/*`
+
+## 🧪 Test After Deploy
+
 ```bash
-# Login ke VPS
-ssh root@159.65.134.137
+# Test frontend
+curl https://aura-on-aleo.vercel.app
 
-# Setup SSL (setelah DNS ready)
-certbot --nginx -d aurapass.xyz -d www.aurapass.xyz -d api.aurapass.xyz --email your@email.com --agree-tos
+# Test Aleo page
+curl https://aura-on-aleo.vercel.app/aleo
+
+# Test API proxy
+curl https://aura-on-aleo.vercel.app/api/aleo/status
 ```
 
-### 3️⃣ Update Frontend URL
-```bash
-# Di VPS, update frontend env
-cd /root/aura-protocol
-nano frontend/.env
+## 🎯 Next Steps
 
-# Ganti:
-REACT_APP_BACKEND_URL=https://api.aurapass.xyz
-REACT_APP_REDIRECT_URI=https://aurapass.xyz/poh/callback
+1. Deploy via Vercel dashboard
+2. Add custom domain (optional)
+3. Test Aleo wallet integration
+4. Verify all features working
 
-# Restart
-docker-compose -f docker-compose.production.yml restart frontend
-```
+## 📚 Resources
 
-## DNS Setup (Cloudflare/Domain Provider)
-```
-Type  Name   Value
-A     @      159.65.134.137
-A     www    159.65.134.137
-A     api    159.65.134.137
-```
-
-## Verify
-- Frontend: https://aurapass.xyz
-- API: https://api.aurapass.xyz/api/
-- Logs: `ssh root@159.65.134.137 'docker logs aura-backend -f'`
-
-## Troubleshooting
-```bash
-# Check containers
-docker ps
-
-# Restart all
-docker-compose -f docker-compose.production.yml restart
-
-# View logs
-docker logs aura-backend -f
-docker logs aura-frontend -f
-```
+- Vercel Dashboard: https://vercel.com/dashboard
+- Vercel Docs: https://vercel.com/docs
+- Repository: https://github.com/IdcuqS07/Aura-On-Aleo
