@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, AlertCircle } from 'lucide-react';
+import { X, AlertCircle, ExternalLink } from 'lucide-react';
 
 const WalletSelector = ({ isOpen, onClose, onSelectWallet }) => {
   const [error, setError] = useState(null);
@@ -82,6 +82,20 @@ const WalletSelector = ({ isOpen, onClose, onSelectWallet }) => {
         <p className="text-xs text-gray-500 text-center mt-4">
           By connecting, you agree to our Terms of Service
         </p>
+        
+        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-blue-200">
+              <div className="font-semibold mb-1">Leo Wallet Setup:</div>
+              <ol className="list-decimal list-inside space-y-0.5">
+                <li>Click Leo Wallet extension icon</li>
+                <li>Click "Connect" to this website</li>
+                <li>Refresh page and try again</li>
+              </ol>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

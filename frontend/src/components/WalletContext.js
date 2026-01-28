@@ -53,29 +53,23 @@ export const WalletProvider = ({ children }) => {
           console.log('Current network:', window.leoWallet.network);
           
           try {
+            // Check if Leo Wallet is connected
+            if (!window.leoWallet.publicKey || !window.leoWallet.permission) {
+              console.log('⚠️ Leo Wallet not connected to this site');
+              setError('Please connect Leo Wallet: Click the Leo Wallet extension icon and connect to this website first');
+              setIsConnecting(false);
+              return;
+            }
+            
             // Check network
             const expectedNetwork = 'testnet';
-            if (window.leoWallet.network !== expectedNetwork) {
+            if (window.leoWallet.network && window.leoWallet.network !== expectedNetwork) {
               setError(`Please switch Leo Wallet to ${expectedNetwork}. Current: ${window.leoWallet.network}`);
               setIsConnecting(false);
               return;
             }
             
-            let walletAddress = window.leoWallet.publicKey;
-            
-            // Wait for publicKey to be injected
-            if (!walletAddress) {
-              console.log('Waiting for Leo Wallet publicKey...');
-              
-              for (let i = 0; i < 30; i++) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                walletAddress = window.leoWallet.publicKey;
-                if (walletAddress) {
-                  console.log('✅ Got publicKey after waiting');
-                  break;
-                }
-              }
-            }
+            const walletAddress = window.leoWallet.publicKey;
             
             if (walletAddress) {
               setAddress(walletAddress);
@@ -84,8 +78,7 @@ export const WalletProvider = ({ children }) => {
               setError(null);
               console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
-              console.log('❌ Could not get Leo Wallet address');
-              setError('Please connect Leo Wallet manually from the extension, then refresh');
+              setError('Please connect Leo Wallet from the extension');
             }
           } catch (walletError) {
             try {
