@@ -56,9 +56,42 @@ export const WalletProvider = ({ children }) => {
             // Check if Leo Wallet is connected
             if (!window.leoWallet.publicKey || !window.leoWallet.permission) {
               console.log('⚠️ Leo Wallet not connected to this site');
-              setError('Please connect Leo Wallet: Click the Leo Wallet extension icon and connect to this website first');
-              setIsConnecting(false);
-              return;
+              
+              // Try to trigger connection
+              try {
+                // Check all available methods on prototype
+                const proto = Object.getPrototypeOf(window.leoWallet);
+                const allMethods = Object.getOwnPropertyNames(proto);
+                console.log('All Leo Wallet methods:', allMethods);
+                
+                // Try common connection methods
+                if (typeof window.leoWallet.connect === 'function') {
+                  console.log('Trying connect()...');
+                  await window.leoWallet.connect();
+                } else if (typeof window.leoWallet.requestAccounts === 'function') {
+                  console.log('Trying requestAccounts()...');
+                  await window.leoWallet.requestAccounts();
+                } else if (typeof window.leoWallet.enable === 'function') {
+                  console.log('Trying enable()...');
+                  await window.leoWallet.enable();
+                } else {
+                  setError('Please click the Leo Wallet extension icon and connect to this website');
+                  setIsConnecting(false);
+                  return;
+                }
+                
+                // Check again after connection attempt
+                if (!window.leoWallet.publicKey) {
+                  setError('Please click the Leo Wallet extension icon and connect to this website');
+                  setIsConnecting(false);
+                  return;
+                }
+              } catch (connectError) {
+                console.log('Connection attempt failed:', connectError.message);
+                setError('Please click the Leo Wallet extension icon and connect to this website');
+                setIsConnecting(false);
+                return;
+              }
             }
             
             // Check network
