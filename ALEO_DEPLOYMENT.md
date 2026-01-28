@@ -6,7 +6,7 @@ Soulbound NFT badge program for Aura Protocol on Aleo blockchain.
 
 ## 🔑 Deployment Account
 
-**Address:** `aleo1ywdzlcck4c6z763z846juyjdz0j2mwdemyuv9733klh37ysvk59q8vx907`
+**Address:** `aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke`
 
 **Private Key:** Stored in `aleo-programs/zkbadge/.env` (DO NOT COMMIT)
 
@@ -19,7 +19,7 @@ Soulbound NFT badge program for Aura Protocol on Aleo blockchain.
 
 2. **Testnet Credits**
    - Visit: https://faucet.aleo.org/
-   - Enter address: `aleo1ywdzlcck4c6z763z846juyjdz0j2mwdemyuv9733klh37ysvk59q8vx907`
+   - Enter address: `aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke`
    - Request credits (usually 10-50 credits)
    - Wait 1-2 minutes for confirmation
 
@@ -27,7 +27,7 @@ Soulbound NFT badge program for Aura Protocol on Aleo blockchain.
    ```bash
    curl -X POST https://api.explorer.provable.com/v1 \
      -H "Content-Type: application/json" \
-     -d '{"jsonrpc":"2.0","id":1,"method":"getBalance","params":["aleo1ywdzlcck4c6z763z846juyjdz0j2mwdemyuv9733klh37ysvk59q8vx907"]}'
+     -d '{"jsonrpc":"2.0","id":1,"method":"getBalance","params":["aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke"]}'
    ```
 
 ## 🚀 Deployment Steps
