@@ -48,18 +48,29 @@ export const WalletProvider = ({ children }) => {
         if (window.leoWallet) {
           console.log('✅ Leo Wallet detected');
           console.log('Available methods:', Object.keys(window.leoWallet));
+          console.log('Current publicKey:', window.leoWallet.publicKey);
+          console.log('Current permission:', window.leoWallet.permission);
+          
           try {
-            // Leo Wallet uses publicKey property, not connect() method
-            let walletAddress = null;
+            let walletAddress = window.leoWallet.publicKey;
             
-            if (window.leoWallet.publicKey) {
-              walletAddress = window.leoWallet.publicKey;
-              console.log('✅ Got Leo Wallet address:', walletAddress);
-            } else {
-              // Request permission if not connected
-              console.log('Requesting Leo Wallet permission...');
-              await window.leoWallet.requestPermission?.();
-              walletAddress = window.leoWallet.publicKey;
+            // If no publicKey, need to request connection
+            if (!walletAddress) {
+              console.log('No publicKey found, requesting connection...');
+              
+              // Leo Wallet requires user to connect via extension popup
+              // We need to trigger the connection request
+              if (typeof window.leoWallet.requestPermission === 'function') {
+                await window.leoWallet.requestPermission();
+                walletAddress = window.leoWallet.publicKey;
+              } else {
+                // Alternative: check if there's a connect method we missed
+                const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(window.leoWallet));
+                console.log('Prototype methods:', methods);
+                
+                setError('Please connect Leo Wallet manually from the extension');
+                return;
+              }
             }
             
             if (walletAddress) {
@@ -69,8 +80,8 @@ export const WalletProvider = ({ children }) => {
               setError(null);
               console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
-              console.log('Could not get Leo Wallet address');
-              setError('Please unlock Leo Wallet and grant permission');
+              console.log('❌ Could not get Leo Wallet address after permission request');
+              setError('Please unlock Leo Wallet and connect from the extension');
             }
           } catch (walletError) {
             try {
