@@ -855,6 +855,14 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ Polygon ZK Proof routes not available: {e}")
 
+# Include Aleo routes
+try:
+    from aleo_routes import router as aleo_router
+    app.include_router(aleo_router)
+    logger.info("✅ Aleo routes loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Aleo routes not available: {e}")
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
