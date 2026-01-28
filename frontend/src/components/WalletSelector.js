@@ -82,22 +82,6 @@ const WalletSelector = ({ isOpen, onClose, onSelectWallet }) => {
         <p className="text-xs text-gray-500 text-center mt-4">
           By connecting, you agree to our Terms of Service
         </p>
-        
-        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-blue-200">
-              <div className="font-semibold mb-1">Leo Wallet Instructions:</div>
-              <ol className="list-decimal list-inside space-y-0.5">
-                <li>Make sure Leo Wallet is installed and unlocked</li>
-                <li>Click "Leo Wallet" button above</li>
-                <li>App will auto-connect within 2-3 seconds</li>
-                <li>If not connected, refresh page and try again</li>
-              </ol>
-              <p className="mt-2 text-xs text-blue-300">Note: Leo Wallet requires manual unlock. No popup will appear.</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
