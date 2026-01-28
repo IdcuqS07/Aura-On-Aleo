@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { WalletProvider } from '@demox-labs/aleo-wallet-adapter-react';
 import { WalletModalProvider } from '@demox-labs/aleo-wallet-adapter-reactui';
 import { LeoWalletAdapter } from '@demox-labs/aleo-wallet-adapter-leo';
@@ -10,7 +10,9 @@ import '@demox-labs/aleo-wallet-adapter-reactui/styles.css';
 export const AleoWalletProvider = ({ children }) => {
   const wallets = useMemo(
     () => [
-      new LeoWalletAdapter(),
+      new LeoWalletAdapter({
+        appName: 'Aura Protocol',
+      }),
     ],
     []
   );
@@ -19,7 +21,7 @@ export const AleoWalletProvider = ({ children }) => {
     <WalletProvider
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
-      network={WalletAdapterNetwork.Testnet}
+      network={WalletAdapterNetwork.TestnetBeta}
       autoConnect={false}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
