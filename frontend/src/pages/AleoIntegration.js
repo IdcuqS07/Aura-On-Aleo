@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import aleoWallet from '../services/aleoWallet';
+import { useWallet } from '@demox-labs/aleo-wallet-adapter-react';
+import { AleoConnectButton } from '../components/AleoConnectButton';
 import aleoAPI from '../services/aleoAPI';
 
 const AleoIntegration = () => {
-  const [connected, setConnected] = useState(false);
-  const [account, setAccount] = useState(null);
+  const { publicKey, connected } = useWallet();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,24 +23,8 @@ const AleoIntegration = () => {
     }
   };
 
-  const connectWallet = async () => {
-    setLoading(true);
-    try {
-      const result = await aleoWallet.connect();
-      if (result.success) {
-        setConnected(true);
-        setAccount(result.address);
-      } else {
-        alert(result.error || 'Failed to connect wallet');
-      }
-    } catch (error) {
-      alert('Error: ' + error.message);
-    }
-    setLoading(false);
-  };
-
   const issueBadge = async () => {
-    if (!connected) {
+    if (!connected || !publicKey) {
       alert('Please connect wallet first');
       return;
     }
@@ -48,7 +32,7 @@ const AleoIntegration = () => {
     setLoading(true);
     try {
       const result = await aleoAPI.issueBadge(
-        account,
+        publicKey,
         1,
         Date.now()
       );
@@ -82,18 +66,11 @@ const AleoIntegration = () => {
 
           {/* Wallet Connection */}
           <div className="space-y-2">
-            {!connected ? (
-              <Button 
-                onClick={connectWallet} 
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? 'Connecting...' : 'Connect Aleo Wallet'}
-              </Button>
-            ) : (
-              <div className="p-4 bg-green-50 rounded">
+            <AleoConnectButton />
+            {connected && publicKey && (
+              <div className="p-4 bg-green-50 rounded mt-2">
                 <p className="text-sm font-semibold text-green-800">Connected</p>
-                <p className="text-xs text-green-600 mt-1 break-all">{account}</p>
+                <p className="text-xs text-green-600 mt-1 break-all">{publicKey}</p>
               </div>
             )}
           </div>
