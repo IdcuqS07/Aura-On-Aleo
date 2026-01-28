@@ -75,43 +75,37 @@ export const WalletProvider = ({ children }) => {
             if (!window.leoWallet.publicKey || !window.leoWallet.permission) {
               console.log('⚠️ Leo Wallet not connected to this site');
               
-              // Call connect() with proper error handling
+              // Try silent connect
               try {
-                console.log('Calling Leo Wallet connect()...');
+                console.log('Attempting silent connect...');
                 
-                // Call connect without awaiting or storing result
-                window.leoWallet.connect().then(() => {
-                  console.log('Connect promise resolved');
-                }).catch((err) => {
-                  console.log('Connect promise rejected:', err?.message || 'Unknown');
-                });
+                // Wrap in setTimeout to avoid blocking
+                setTimeout(() => {
+                  try {
+                    window.leoWallet.connect();
+                  } catch (e) {
+                    // Ignore
+                  }
+                }, 0);
                 
-                // Wait for publicKey to populate
-                let attempts = 0;
-                while (attempts < 50 && !window.leoWallet.publicKey) {
+                // Wait for publicKey
+                for (let i = 0; i < 100; i++) {
                   await new Promise(resolve => setTimeout(resolve, 100));
-                  attempts++;
+                  if (window.leoWallet.publicKey) {
+                    console.log('✅ Got publicKey after', i * 100, 'ms');
+                    break;
+                  }
                 }
                 
                 if (!window.leoWallet.publicKey) {
-                  setError('Connection timeout. Please try again or check Leo Wallet settings.');
+                  setError('Leo Wallet connection required. Please approve the connection popup.');
                   setIsConnecting(false);
                   return;
                 }
-                
-                console.log('✅ Got publicKey after connect');
               } catch (err) {
-                // Ignore error, might be toString issue
-                console.log('Connect error (ignored):', err?.message || 'Unknown');
-                
-                // Still wait for publicKey
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                if (!window.leoWallet.publicKey) {
-                  setError('Failed to connect. Please refresh and try again.');
-                  setIsConnecting(false);
-                  return;
-                }
+                setError('Failed to connect Leo Wallet. Please try again.');
+                setIsConnecting(false);
+                return;
               }
             }
             
