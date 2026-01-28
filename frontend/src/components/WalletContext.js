@@ -15,8 +15,8 @@ export const WalletProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState(null);
+  const [walletType, setWalletType] = useState(null); // 'aleo' or 'evm'
 
-  // Check if wallet is already connected on mount
   useEffect(() => {
     checkIfWalletIsConnected();
   }, []);
@@ -28,6 +28,7 @@ export const WalletProvider = ({ children }) => {
         if (accounts.length > 0) {
           setAddress(accounts[0]);
           setIsConnected(true);
+          setWalletType('evm');
         }
       }
     } catch (err) {
@@ -35,32 +36,48 @@ export const WalletProvider = ({ children }) => {
     }
   };
 
-  const connectWallet = async () => {
+  const connectWallet = async (type = 'evm') => {
     setIsConnecting(true);
     setError(null);
 
     try {
-      // Check if MetaMask is installed
-      if (!window.ethereum) {
-        setError('Please install MetaMask to use this app');
-        setIsConnecting(false);
-        return;
-      }
+      if (type === 'aleo') {
+        // Connect Aleo wallet
+        if (window.leoWallet || window.puzzleWallet) {
+          const wallet = window.leoWallet || window.puzzleWallet;
+          const accounts = await wallet.connect();
+          if (accounts && accounts.length > 0) {
+            setAddress(accounts[0]);
+            setIsConnected(true);
+            setWalletType('aleo');
+            setError(null);
+          }
+        } else {
+          setError('Please install Leo Wallet or Puzzle Wallet');
+        }
+      } else {
+        // Connect MetaMask
+        if (!window.ethereum) {
+          setError('Please install MetaMask');
+          setIsConnecting(false);
+          return;
+        }
 
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
 
-      if (accounts.length > 0) {
-        setAddress(accounts[0]);
-        setIsConnected(true);
-        setError(null);
+        if (accounts.length > 0) {
+          setAddress(accounts[0]);
+          setIsConnected(true);
+          setWalletType('evm');
+          setError(null);
+        }
       }
     } catch (err) {
       console.error('Error connecting wallet:', err);
       if (err.code === 4001) {
-        setError('Please connect to MetaMask');
+        setError('Please connect to your wallet');
       } else {
         setError('Failed to connect wallet');
       }
@@ -72,16 +89,17 @@ export const WalletProvider = ({ children }) => {
   const disconnectWallet = () => {
     setAddress(null);
     setIsConnected(false);
+    setWalletType(null);
     setError(null);
   };
 
-  // Listen for account changes
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length > 0) {
           setAddress(accounts[0]);
           setIsConnected(true);
+          setWalletType('evm');
         } else {
           disconnectWallet();
         }
@@ -105,6 +123,7 @@ export const WalletProvider = ({ children }) => {
     isConnected,
     isConnecting,
     error,
+    walletType,
     connectWallet,
     disconnectWallet,
   };

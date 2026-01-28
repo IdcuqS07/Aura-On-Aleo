@@ -3,18 +3,20 @@ import { Link, useLocation } from 'react-router-dom';
 import { Shield, Menu, X, Wallet, LogOut, ChevronDown } from 'lucide-react';
 import { useWallet } from './WalletContext';
 import NetworkSelector from './NetworkSelector';
+import WalletSelector from './WalletSelector';
 
 const ADMIN_WALLETS = ['0xc3ece9ac328cb232ddb0bc677d2e980a1a3d3974'];
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
   const [passportDropdown, setPassportDropdown] = useState(false);
   const [developerDropdown, setDeveloperDropdown] = useState(false);
   const [passportTimeout, setPassportTimeout] = useState(null);
   const [developerTimeout, setDeveloperTimeout] = useState(null);
   const [selectedNetwork, setSelectedNetwork] = useState('polygon_amoy');
   const location = useLocation();
-  const { address, isConnected, isConnecting, connectWallet, disconnectWallet } = useWallet();
+  const { address, isConnected, isConnecting, walletType, connectWallet, disconnectWallet } = useWallet();
 
   const isAdmin = isConnected && ADMIN_WALLETS.includes(address?.toLowerCase());
 
@@ -143,6 +145,9 @@ const Navigation = () => {
                 <div className="px-4 py-2 bg-purple-600/20 border border-purple-500/30 rounded-lg flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-white font-mono text-sm">{formatAddress(address)}</span>
+                  {walletType && (
+                    <span className="text-xs text-purple-400">({walletType === 'aleo' ? 'Aleo' : 'EVM'})</span>
+                  )}
                 </div>
                 <button
                   onClick={disconnectWallet}
@@ -155,7 +160,7 @@ const Navigation = () => {
               </div>
             ) : (
               <button
-                onClick={connectWallet}
+                onClick={() => setShowWalletSelector(true)}
                 disabled={isConnecting}
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/50 transition-all flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 data-testid="connect-wallet-btn"
@@ -232,7 +237,7 @@ const Navigation = () => {
                 </div>
               ) : (
                 <button
-                  onClick={connectWallet}
+                  onClick={() => setShowWalletSelector(true)}
                   disabled={isConnecting}
                   className="w-full px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium flex items-center justify-center space-x-2 disabled:opacity-50"
                 >
@@ -244,6 +249,16 @@ const Navigation = () => {
           </div>
         </div>
       )}
+
+      {/* Wallet Selector Modal */}
+      <WalletSelector
+        isOpen={showWalletSelector}
+        onClose={() => setShowWalletSelector(false)}
+        onSelectWallet={(type) => {
+          setShowWalletSelector(false);
+          connectWallet(type);
+        }}
+      />
     </nav>
   );
 };
