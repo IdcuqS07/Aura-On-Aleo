@@ -50,23 +50,33 @@ export const WalletProvider = ({ children }) => {
           try {
             // Request connection permission
             const response = await window.leoWallet.connect();
-            console.log('Leo Wallet response:', response);
+            console.log('Leo Wallet raw response:', response);
+            console.log('Response type:', typeof response);
             
-            if (response && response.address) {
-              setAddress(response.address);
+            let walletAddress = null;
+            
+            // Handle different response formats
+            if (typeof response === 'string') {
+              walletAddress = response;
+            } else if (response && typeof response === 'object') {
+              if (response.address) {
+                walletAddress = response.address;
+              } else if (response.account) {
+                walletAddress = response.account;
+              } else if (Array.isArray(response) && response.length > 0) {
+                walletAddress = response[0];
+              }
+            }
+            
+            if (walletAddress) {
+              setAddress(walletAddress);
               setIsConnected(true);
               setWalletType('aleo');
               setError(null);
-              console.log('✅ Connected to Leo Wallet:', response.address);
-            } else if (response && Array.isArray(response) && response.length > 0) {
-              setAddress(response[0]);
-              setIsConnected(true);
-              setWalletType('aleo');
-              setError(null);
-              console.log('✅ Connected to Leo Wallet:', response[0]);
+              console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
               console.error('❌ Invalid response format:', response);
-              setError('Failed to get wallet address');
+              setError('Failed to get wallet address from Leo Wallet');
             }
           } catch (walletError) {
             console.error('❌ Leo Wallet error:', walletError);

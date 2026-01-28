@@ -33,20 +33,31 @@ class AleoWalletService {
         this.wallet = window.leoWallet;
         
         const response = await this.wallet.connect();
-        console.log('Leo Wallet response:', response);
+        console.log('Leo Wallet raw response:', response);
+        console.log('Response type:', typeof response);
+        
+        let walletAddress = null;
         
         // Handle different response formats
-        if (response && response.address) {
-          this.account = response.address;
-          console.log('✅ Connected to Leo Wallet:', this.account);
-          return { success: true, address: this.account, wallet: 'leo' };
-        } else if (Array.isArray(response) && response.length > 0) {
-          this.account = response[0];
+        if (typeof response === 'string') {
+          walletAddress = response;
+        } else if (response && typeof response === 'object') {
+          if (response.address) {
+            walletAddress = response.address;
+          } else if (response.account) {
+            walletAddress = response.account;
+          } else if (Array.isArray(response) && response.length > 0) {
+            walletAddress = response[0];
+          }
+        }
+        
+        if (walletAddress) {
+          this.account = walletAddress;
           console.log('✅ Connected to Leo Wallet:', this.account);
           return { success: true, address: this.account, wallet: 'leo' };
         } else {
-          console.error('❌ Invalid Leo Wallet response format');
-          return { success: false, error: 'Invalid wallet response' };
+          console.error('❌ Invalid Leo Wallet response format:', response);
+          return { success: false, error: 'Invalid wallet response format' };
         }
       }
       
