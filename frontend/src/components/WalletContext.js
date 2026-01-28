@@ -42,17 +42,54 @@ export const WalletProvider = ({ children }) => {
 
     try {
       if (type === 'aleo') {
-        // Connect Aleo wallet
-        if (window.leoWallet || window.puzzleWallet) {
-          const wallet = window.leoWallet || window.puzzleWallet;
-          const accounts = await wallet.connect();
-          if (accounts && accounts.length > 0) {
-            setAddress(accounts[0]);
-            setIsConnected(true);
-            setWalletType('aleo');
-            setError(null);
+        console.log('🔗 Attempting to connect Aleo wallet...');
+        
+        // Connect Leo Wallet
+        if (window.leoWallet) {
+          console.log('✅ Leo Wallet detected');
+          try {
+            // Request connection permission
+            const response = await window.leoWallet.connect();
+            console.log('Leo Wallet response:', response);
+            
+            if (response && response.address) {
+              setAddress(response.address);
+              setIsConnected(true);
+              setWalletType('aleo');
+              setError(null);
+              console.log('✅ Connected to Leo Wallet:', response.address);
+            } else if (response && Array.isArray(response) && response.length > 0) {
+              setAddress(response[0]);
+              setIsConnected(true);
+              setWalletType('aleo');
+              setError(null);
+              console.log('✅ Connected to Leo Wallet:', response[0]);
+            } else {
+              console.error('❌ Invalid response format:', response);
+              setError('Failed to get wallet address');
+            }
+          } catch (walletError) {
+            console.error('❌ Leo Wallet error:', walletError);
+            setError(walletError.message || 'Failed to connect Leo Wallet');
+          }
+        } else if (window.puzzleWallet) {
+          console.log('✅ Puzzle Wallet detected');
+          try {
+            const accounts = await window.puzzleWallet.connect();
+            console.log('Puzzle Wallet response:', accounts);
+            if (accounts && accounts.length > 0) {
+              setAddress(accounts[0]);
+              setIsConnected(true);
+              setWalletType('aleo');
+              setError(null);
+              console.log('✅ Connected to Puzzle Wallet:', accounts[0]);
+            }
+          } catch (walletError) {
+            console.error('❌ Puzzle Wallet error:', walletError);
+            setError(walletError.message || 'Failed to connect Puzzle Wallet');
           }
         } else {
+          console.error('❌ No Aleo wallet extension found');
           setError('Please install Leo Wallet or Puzzle Wallet');
         }
       } else {

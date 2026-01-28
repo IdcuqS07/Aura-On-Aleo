@@ -23,25 +23,51 @@ class AleoWalletService {
    */
   async connect() {
     try {
+      console.log('🔍 Checking for Aleo wallets...');
+      console.log('Leo Wallet:', typeof window.leoWallet);
+      console.log('Puzzle Wallet:', typeof window.puzzleWallet);
+      
       // Try Leo Wallet first
       if (window.leoWallet) {
+        console.log('✅ Leo Wallet detected, attempting connection...');
         this.wallet = window.leoWallet;
-        const accounts = await this.wallet.connect();
-        this.account = accounts[0];
-        return { success: true, address: this.account, wallet: 'leo' };
+        
+        const response = await this.wallet.connect();
+        console.log('Leo Wallet response:', response);
+        
+        // Handle different response formats
+        if (response && response.address) {
+          this.account = response.address;
+          console.log('✅ Connected to Leo Wallet:', this.account);
+          return { success: true, address: this.account, wallet: 'leo' };
+        } else if (Array.isArray(response) && response.length > 0) {
+          this.account = response[0];
+          console.log('✅ Connected to Leo Wallet:', this.account);
+          return { success: true, address: this.account, wallet: 'leo' };
+        } else {
+          console.error('❌ Invalid Leo Wallet response format');
+          return { success: false, error: 'Invalid wallet response' };
+        }
       }
       
       // Try Puzzle Wallet
       if (window.puzzleWallet) {
+        console.log('✅ Puzzle Wallet detected, attempting connection...');
         this.wallet = window.puzzleWallet;
         const accounts = await this.wallet.connect();
-        this.account = accounts[0];
-        return { success: true, address: this.account, wallet: 'puzzle' };
+        console.log('Puzzle Wallet response:', accounts);
+        
+        if (accounts && accounts.length > 0) {
+          this.account = accounts[0];
+          console.log('✅ Connected to Puzzle Wallet:', this.account);
+          return { success: true, address: this.account, wallet: 'puzzle' };
+        }
       }
 
-      return { success: false, error: 'No Aleo wallet found' };
+      console.error('❌ No Aleo wallet found');
+      return { success: false, error: 'No Aleo wallet found. Please install Leo Wallet or Puzzle Wallet.' };
     } catch (error) {
-      console.error('Wallet connection error:', error);
+      console.error('❌ Wallet connection error:', error);
       return { success: false, error: error.message };
     }
   }
