@@ -64,31 +64,33 @@ export const WalletProvider = ({ children }) => {
                 const allMethods = Object.getOwnPropertyNames(proto);
                 console.log('All Leo Wallet methods:', allMethods);
                 
-                // Try common connection methods
+                // Leo Wallet has connect() method
                 if (typeof window.leoWallet.connect === 'function') {
-                  console.log('Trying connect()...');
-                  await window.leoWallet.connect();
-                } else if (typeof window.leoWallet.requestAccounts === 'function') {
-                  console.log('Trying requestAccounts()...');
-                  await window.leoWallet.requestAccounts();
-                } else if (typeof window.leoWallet.enable === 'function') {
-                  console.log('Trying enable()...');
-                  await window.leoWallet.enable();
+                  console.log('Calling connect()...');
+                  const result = await window.leoWallet.connect();
+                  
+                  // Don't log result directly (causes toString error)
+                  console.log('Connect called successfully');
+                  
+                  // Wait a bit for publicKey to populate
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  
+                  if (window.leoWallet.publicKey) {
+                    console.log('✅ Got publicKey after connect');
+                  } else {
+                    console.log('⚠️ No publicKey after connect, user may have rejected');
+                    setError('Connection rejected. Please try again and approve the connection.');
+                    setIsConnecting(false);
+                    return;
+                  }
                 } else {
                   setError('Please click the Leo Wallet extension icon and connect to this website');
                   setIsConnecting(false);
                   return;
                 }
-                
-                // Check again after connection attempt
-                if (!window.leoWallet.publicKey) {
-                  setError('Please click the Leo Wallet extension icon and connect to this website');
-                  setIsConnecting(false);
-                  return;
-                }
               } catch (connectError) {
-                console.log('Connection attempt failed:', connectError.message);
-                setError('Please click the Leo Wallet extension icon and connect to this website');
+                console.log('Connection error:', connectError.message || 'Unknown');
+                setError('Connection failed. Please click the Leo Wallet extension icon and connect manually.');
                 setIsConnecting(false);
                 return;
               }
