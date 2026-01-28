@@ -49,30 +49,17 @@ export const WalletProvider = ({ children }) => {
           console.log('✅ Leo Wallet detected');
           console.log('Available methods:', Object.keys(window.leoWallet));
           try {
-            // Request connection permission
-            const response = await window.leoWallet.connect();
-            
-            // Safe logging
-            try {
-              console.log('Leo Wallet raw response:', response);
-              console.log('Response type:', typeof response);
-            } catch (logError) {
-              console.log('Could not log response (toString error)');
-            }
-            
+            // Leo Wallet uses publicKey property, not connect() method
             let walletAddress = null;
             
-            // Handle different response formats
-            if (typeof response === 'string') {
-              walletAddress = response;
-            } else if (response && typeof response === 'object') {
-              if (response.address) {
-                walletAddress = response.address;
-              } else if (response.account) {
-                walletAddress = response.account;
-              } else if (Array.isArray(response) && response.length > 0) {
-                walletAddress = response[0];
-              }
+            if (window.leoWallet.publicKey) {
+              walletAddress = window.leoWallet.publicKey;
+              console.log('✅ Got Leo Wallet address:', walletAddress);
+            } else {
+              // Request permission if not connected
+              console.log('Requesting Leo Wallet permission...');
+              await window.leoWallet.requestPermission?.();
+              walletAddress = window.leoWallet.publicKey;
             }
             
             if (walletAddress) {
@@ -82,8 +69,8 @@ export const WalletProvider = ({ children }) => {
               setError(null);
               console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
-              console.log('Could not log response (toString error)');
-              setError('Failed to get wallet address from Leo Wallet');
+              console.log('Could not get Leo Wallet address');
+              setError('Please unlock Leo Wallet and grant permission');
             }
           } catch (walletError) {
             try {

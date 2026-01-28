@@ -32,23 +32,12 @@ class AleoWalletService {
         console.log('✅ Leo Wallet detected, attempting connection...');
         this.wallet = window.leoWallet;
         
-        const response = await this.wallet.connect();
-        console.log('Leo Wallet raw response:', response);
-        console.log('Response type:', typeof response);
+        // Leo Wallet uses publicKey property
+        let walletAddress = window.leoWallet.publicKey;
         
-        let walletAddress = null;
-        
-        // Handle different response formats
-        if (typeof response === 'string') {
-          walletAddress = response;
-        } else if (response && typeof response === 'object') {
-          if (response.address) {
-            walletAddress = response.address;
-          } else if (response.account) {
-            walletAddress = response.account;
-          } else if (Array.isArray(response) && response.length > 0) {
-            walletAddress = response[0];
-          }
+        if (!walletAddress && window.leoWallet.requestPermission) {
+          await window.leoWallet.requestPermission();
+          walletAddress = window.leoWallet.publicKey;
         }
         
         if (walletAddress) {
@@ -56,8 +45,8 @@ class AleoWalletService {
           console.log('✅ Connected to Leo Wallet:', this.account);
           return { success: true, address: this.account, wallet: 'leo' };
         } else {
-          console.error('❌ Invalid Leo Wallet response format:', response);
-          return { success: false, error: 'Invalid wallet response format' };
+          console.error('❌ Could not get Leo Wallet address');
+          return { success: false, error: 'Please unlock Leo Wallet' };
         }
       }
       
