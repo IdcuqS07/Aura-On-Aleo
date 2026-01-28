@@ -10,9 +10,7 @@ import '@demox-labs/aleo-wallet-adapter-reactui/styles.css';
 export const AleoWalletProvider = ({ children }) => {
   const wallets = useMemo(
     () => [
-      new LeoWalletAdapter({
-        appName: 'AuraProtocol',
-      }),
+      new LeoWalletAdapter(),
     ],
     []
   );
