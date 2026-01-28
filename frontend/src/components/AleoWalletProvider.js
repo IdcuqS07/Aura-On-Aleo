@@ -7,7 +7,7 @@ import { DecryptPermission, WalletAdapterNetwork } from '@demox-labs/aleo-wallet
 // Import CSS
 import '@demox-labs/aleo-wallet-adapter-reactui/styles.css';
 
-export const AleoWalletProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AleoWalletProvider = ({ children }) => {
   const wallets = useMemo(
     () => [
       new LeoWalletAdapter({
@@ -22,7 +22,7 @@ export const AleoWalletProvider: FC<{ children: React.ReactNode }> = ({ children
       wallets={wallets}
       decryptPermission={DecryptPermission.UponRequest}
       network={WalletAdapterNetwork.Testnet}
-      autoConnect
+      autoConnect={false}
     >
       <WalletModalProvider>{children}</WalletModalProvider>
     </WalletProvider>
