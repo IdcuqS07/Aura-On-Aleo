@@ -17,11 +17,11 @@ program zkbadge.aleo {
     mapping badge_owners: u64 => address;
 
     // Initialize program (only once)
-    transition initialize() -> Future {
+    async transition initialize() -> Future {
         return finalize_initialize(self.caller);
     }
 
-    finalize initialize(admin: address) {
+    async function finalize_initialize(admin: address) {
         // Set initial supply to 0
         Mapping::set(total_supply, 0u8, 0u64);
         // Authorize admin as minter
@@ -29,11 +29,11 @@ program zkbadge.aleo {
     }
 
     // Authorize minter (admin only)
-    transition authorize_minter(minter: address) -> Future {
+    async transition authorize_minter(minter: address) -> Future {
         return finalize_authorize_minter(self.caller, minter);
     }
 
-    finalize authorize_minter(caller: address, minter: address) {
+    async function finalize_authorize_minter(caller: address, minter: address) {
         // Check if caller is authorized
         let is_authorized: bool = Mapping::get_or_use(authorized_minters, caller, false);
         assert(is_authorized);
@@ -43,25 +43,26 @@ program zkbadge.aleo {
     }
 
     // Issue badge (authorized minters only)
-    transition issue_badge(
+    async transition issue_badge(
         recipient: address,
         badge_type: field,
-        zk_proof_hash: field
+        zk_proof_hash: field,
+        issued_at: u64
     ) -> (Badge, Future) {
-        let badge_id: u64 = 0u64; // Will be set in finalize
+        let badge_id: u64 = 0u64;
         
         let new_badge: Badge = Badge {
             owner: recipient,
             badge_id: badge_id,
             badge_type: badge_type,
             zk_proof_hash: zk_proof_hash,
-            issued_at: block.height,
+            issued_at: issued_at,
         };
 
         return (new_badge, finalize_issue_badge(self.caller, recipient));
     }
 
-    finalize issue_badge(minter: address, recipient: address) {
+    async function finalize_issue_badge(minter: address, recipient: address) {
         // Check authorization
         let is_authorized: bool = Mapping::get_or_use(authorized_minters, minter, false);
         assert(is_authorized);
@@ -81,21 +82,20 @@ program zkbadge.aleo {
     }
 
     // Get total supply (public view)
-    transition get_total_supply() -> Future {
+    async transition get_total_supply() -> Future {
         return finalize_get_total_supply();
     }
 
-    finalize get_total_supply() {
+    async function finalize_get_total_supply() {
         let supply: u64 = Mapping::get_or_use(total_supply, 0u8, 0u64);
-        // Return value stored in mapping
     }
 
     // Revoke minter authorization
-    transition revoke_minter(minter: address) -> Future {
+    async transition revoke_minter(minter: address) -> Future {
         return finalize_revoke_minter(self.caller, minter);
     }
 
-    finalize revoke_minter(caller: address, minter: address) {
+    async function finalize_revoke_minter(caller: address, minter: address) {
         let is_authorized: bool = Mapping::get_or_use(authorized_minters, caller, false);
         assert(is_authorized);
         
