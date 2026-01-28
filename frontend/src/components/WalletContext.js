@@ -75,10 +75,44 @@ export const WalletProvider = ({ children }) => {
             if (!window.leoWallet.publicKey || !window.leoWallet.permission) {
               console.log('⚠️ Leo Wallet not connected to this site');
               
-              // Leo Wallet connect() has issues, instruct user to connect manually
-              setError('Please open Leo Wallet extension and click "Connect" for this website, then try again');
-              setIsConnecting(false);
-              return;
+              // Call connect() with proper error handling
+              try {
+                console.log('Calling Leo Wallet connect()...');
+                
+                // Call connect without awaiting or storing result
+                window.leoWallet.connect().then(() => {
+                  console.log('Connect promise resolved');
+                }).catch((err) => {
+                  console.log('Connect promise rejected:', err?.message || 'Unknown');
+                });
+                
+                // Wait for publicKey to populate
+                let attempts = 0;
+                while (attempts < 50 && !window.leoWallet.publicKey) {
+                  await new Promise(resolve => setTimeout(resolve, 100));
+                  attempts++;
+                }
+                
+                if (!window.leoWallet.publicKey) {
+                  setError('Connection timeout. Please try again or check Leo Wallet settings.');
+                  setIsConnecting(false);
+                  return;
+                }
+                
+                console.log('✅ Got publicKey after connect');
+              } catch (err) {
+                // Ignore error, might be toString issue
+                console.log('Connect error (ignored):', err?.message || 'Unknown');
+                
+                // Still wait for publicKey
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (!window.leoWallet.publicKey) {
+                  setError('Failed to connect. Please refresh and try again.');
+                  setIsConnecting(false);
+                  return;
+                }
+              }
             }
             
             // Check network
