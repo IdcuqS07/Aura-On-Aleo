@@ -47,11 +47,18 @@ export const WalletProvider = ({ children }) => {
         // Connect Leo Wallet
         if (window.leoWallet) {
           console.log('✅ Leo Wallet detected');
+          console.log('Available methods:', Object.keys(window.leoWallet));
           try {
             // Request connection permission
             const response = await window.leoWallet.connect();
-            console.log('Leo Wallet raw response:', response);
-            console.log('Response type:', typeof response);
+            
+            // Safe logging
+            try {
+              console.log('Leo Wallet raw response:', response);
+              console.log('Response type:', typeof response);
+            } catch (logError) {
+              console.log('Could not log response (toString error)');
+            }
             
             let walletAddress = null;
             
@@ -75,11 +82,15 @@ export const WalletProvider = ({ children }) => {
               setError(null);
               console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
-              console.error('❌ Invalid response format:', response);
+              console.log('Could not log response (toString error)');
               setError('Failed to get wallet address from Leo Wallet');
             }
           } catch (walletError) {
-            console.error('❌ Leo Wallet error:', walletError);
+            try {
+              console.error('❌ Leo Wallet error:', walletError.message || 'Unknown error');
+            } catch {
+              console.error('❌ Leo Wallet error occurred');
+            }
             setError(walletError.message || 'Failed to connect Leo Wallet');
           }
         } else if (window.puzzleWallet) {
