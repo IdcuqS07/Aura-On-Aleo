@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import '@/App.css';
 import { WalletProvider } from '@/components/WalletContext';
+import { AleoWalletProvider } from '@/components/AleoWalletProvider';
 import LandingPage from '@/components/LandingPage';
 import Dashboard from '@/components/Dashboard';
 import CreditPassport from '@/components/CreditPassport';
@@ -28,9 +29,10 @@ import LeoWalletDebug from '@/components/LeoWalletDebug';
 
 function App() {
   return (
-    <WalletProvider>
-      <div className="App min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
-        <BrowserRouter>
+    <AleoWalletProvider>
+      <WalletProvider>
+        <div className="App min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
+          <BrowserRouter>
           <Navigation />
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -58,6 +60,7 @@ function App() {
         </BrowserRouter>
       </div>
     </WalletProvider>
+    </AleoWalletProvider>
   );
 }
 
