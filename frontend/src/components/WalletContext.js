@@ -50,26 +50,30 @@ export const WalletProvider = ({ children }) => {
           console.log('Available methods:', Object.keys(window.leoWallet));
           console.log('Current publicKey:', window.leoWallet.publicKey);
           console.log('Current permission:', window.leoWallet.permission);
+          console.log('Current network:', window.leoWallet.network);
           
           try {
+            // Check network
+            const expectedNetwork = 'testnet';
+            if (window.leoWallet.network !== expectedNetwork) {
+              setError(`Please switch Leo Wallet to ${expectedNetwork}. Current: ${window.leoWallet.network}`);
+              setIsConnecting(false);
+              return;
+            }
+            
             let walletAddress = window.leoWallet.publicKey;
             
-            // If no publicKey, need to request connection
+            // Wait for publicKey to be injected
             if (!walletAddress) {
-              console.log('No publicKey found, requesting connection...');
+              console.log('Waiting for Leo Wallet publicKey...');
               
-              // Leo Wallet requires user to connect via extension popup
-              // We need to trigger the connection request
-              if (typeof window.leoWallet.requestPermission === 'function') {
-                await window.leoWallet.requestPermission();
+              for (let i = 0; i < 30; i++) {
+                await new Promise(resolve => setTimeout(resolve, 100));
                 walletAddress = window.leoWallet.publicKey;
-              } else {
-                // Alternative: check if there's a connect method we missed
-                const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(window.leoWallet));
-                console.log('Prototype methods:', methods);
-                
-                setError('Please connect Leo Wallet manually from the extension');
-                return;
+                if (walletAddress) {
+                  console.log('✅ Got publicKey after waiting');
+                  break;
+                }
               }
             }
             
@@ -80,8 +84,8 @@ export const WalletProvider = ({ children }) => {
               setError(null);
               console.log('✅ Connected to Leo Wallet:', walletAddress);
             } else {
-              console.log('❌ Could not get Leo Wallet address after permission request');
-              setError('Please unlock Leo Wallet and connect from the extension');
+              console.log('❌ Could not get Leo Wallet address');
+              setError('Please connect Leo Wallet manually from the extension, then refresh');
             }
           } catch (walletError) {
             try {
@@ -165,6 +169,27 @@ export const WalletProvider = ({ children }) => {
         window.location.reload();
       });
     }
+    
+    // Poll Leo Wallet for account changes
+    if (window.leoWallet && walletType === 'aleo') {
+      const interval = setInterval(() => {
+        const newAddress = window.leoWallet.publicKey;
+        if (newAddress && newAddress !== address) {
+          setAddress(newAddress);
+          console.log('Leo Wallet account changed:', newAddress);
+        } else if (!newAddress && isConnected) {
+          disconnectWallet();
+        }
+      }, 2000);
+      
+      return () => {
+        clearInterval(interval);
+        if (window.ethereum) {
+          window.ethereum.removeListener('accountsChanged', () => {});
+          window.ethereum.removeListener('chainChanged', () => {});
+        }
+      };
+    }
 
     return () => {
       if (window.ethereum) {
@@ -172,7 +197,7 @@ export const WalletProvider = ({ children }) => {
         window.ethereum.removeListener('chainChanged', () => {});
       }
     };
-  }, []);
+  }, [walletType, address, isConnected]);
 
   const value = {
     address,
