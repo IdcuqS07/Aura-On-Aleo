@@ -11,7 +11,7 @@ export const AleoWalletProvider = ({ children }) => {
   const wallets = useMemo(
     () => [
       new LeoWalletAdapter({
-        appName: 'Aura Protocol',
+        appName: 'AuraProtocol',
       }),
     ],
     []
