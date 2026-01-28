@@ -14,7 +14,7 @@ const Navigation = () => {
   const [developerDropdown, setDeveloperDropdown] = useState(false);
   const [passportTimeout, setPassportTimeout] = useState(null);
   const [developerTimeout, setDeveloperTimeout] = useState(null);
-  const [selectedNetwork, setSelectedNetwork] = useState('polygon_amoy');
+  const [selectedNetwork, setSelectedNetwork] = useState('aleo_testnet');
   const location = useLocation();
   const { address, isConnected, isConnecting, walletType, connectWallet, disconnectWallet } = useWallet();
 

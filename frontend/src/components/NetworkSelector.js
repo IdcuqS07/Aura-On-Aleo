@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 const NETWORKS = [
+  { id: 'aleo_testnet', name: 'Aleo Testnet', chainId: 'testnet3', icon: '🔷' },
   { id: 'polygon_amoy', name: 'Polygon Amoy', chainId: 80002, icon: '🟣' },
   { id: 'ethereum_sepolia', name: 'Ethereum Sepolia', chainId: 11155111, icon: '⟠' },
   { id: 'bsc_testnet', name: 'BSC Testnet', chainId: 97, icon: '🟡' },
@@ -9,7 +10,7 @@ const NETWORKS = [
   { id: 'optimism_sepolia', name: 'Optimism Sepolia', chainId: 11155420, icon: '🔴' }
 ];
 
-const NetworkSelector = ({ onNetworkChange, currentNetwork = 'polygon_amoy' }) => {
+const NetworkSelector = ({ onNetworkChange, currentNetwork = 'aleo_testnet' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(currentNetwork);
 
