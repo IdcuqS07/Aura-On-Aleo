@@ -1,0 +1,9 @@
+[initialize]
+
+[authorize_minter]
+minter: address = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc
+
+[issue_badge]
+recipient: address = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc
+badge_type: field = 1field
+zk_proof_hash: field = 123456789field
