@@ -1,0 +1,7 @@
+{
+  "program": "aura_badge.aleo",
+  "version": "0.0.1",
+  "description": "Aura Badge Minimal",
+  "license": "MIT",
+  "dependencies": []
+}

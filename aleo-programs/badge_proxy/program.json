@@ -1,0 +1,6 @@
+{
+  "program": "badge_proxy.aleo",
+  "version": "0.0.0",
+  "description": "Upgradable proxy for badge program",
+  "license": "MIT"
+}

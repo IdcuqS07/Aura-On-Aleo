@@ -1,0 +1,99 @@
+{
+  "type": "deploy",
+  "id": "at1cn2vtl2e7h0lnvhf7eleksvwf5g9wax4leghf7ls3c8t4qk3zsyq69aw87",
+  "owner": {
+    "address": "aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke",
+    "signature": "sign1p584vhlcylxq465rslyug3j23qcxr8q2dqmer9qcnx8zxwgfssqdpekdr3fwv9ue6mjgegkjmv63zvq66xe0vvzzrd98wfqhq2dvjqfqnwmsm2j84qrjqvd9r8nmvn2mfkpzhux4afzxa3ujvrv97wuwp2vs2hrtzkpdpy2nmmdnqtf9pc09kzcu9g6p9ps32m88xe5hyjyq6s49ttf"
+  },
+  "deployment": {
+    "edition": 0,
+    "program": "program aura_protocol_badge.aleo;\n\nrecord Badge:\n    owner as address.private;\n    badge_type as field.private;\n\nmapping initialized:\n    key as u8.public;\n    value as boolean.public;\n\nfunction init:\n    async init into r0;\n    output r0 as aura_protocol_badge.aleo/init.future;\n\nfinalize init:\n    set true into initialized[0u8];\n\nfunction mint:\n    input r0 as address.private;\n    input r1 as field.private;\n    cast r0 r1 into r2 as Badge.record;\n    output r2 as Badge.record;\n",
+    "verifying_keys": [
+      [
+        "init",
+        [
+          "verifier1qygqqqqqqqqqqqq5ycqqqqqqqqqqvfsqqqqqqqqqw49qqqqqqqqqpk6uqqqqqqqqqrln2qqqqqqqqqqvqqqqqqqqqqq28c5qkxsz699ds72k2mx68w7rya7us8lspk8wxvalynxzlw58xmrft8rqz6emp2rmzzktarnm9kuq9hq27mlrk3cy6ht7cg98rnq0hhqscf4w9ksjaahmq7zmmq0j48jrupr2rnak3x3dt2l9jyl4qxxgpl39sylwl86srm2u3s3ksddgp5rrta7llmw0ttd5wvuvkrzxvw06e4v9z9xwfm6kyn89kls0yvnhszl3t9wn264achfvg6k2w64nrn06dq8sd0z0gvest2s4jncrzw7m8vjfj7tk9u9huqpydvrzl25f9q8gyll5gps94eq2pnqg2pg7v7v3u5cvlzsh9yg7xj06yglpyjf62hkz8w863yaxg8nwhq74kehmy6qxztxkg32u6cqcc76hwlg0xlju7dhmszmks8g5gc7jmgauaz75fr8dhqeppq6r80t3e9ldqevs2e5qlvl2cuz5d9gehdrhg5u5v7v2pjrf7ma88myprrvps7shqkz6423ssa8hjddpa34cjuzf63nrd7egpm479ul7lnk3q0lus75qx9lnjj776fwv2wk36mk6tx8yqy9n29wz5pnl8k0ptdzztm8ggxryz3nrq9ft2slsgkgzv8qwgcvrvg2g37fgmmg09lgvclfj5fw4whtcmt7e7wplhuyx8s5wg4g88q3rc74efqys89v2y7r8wum8fffzul595rf5xnazv2ax52t98fpajvle35vwh6v0yel20a79sdz9wprmpd0kajqyjxjt02my02rx5ulfd2657fs75ympm6u0kszfwytpnz4cmrvyea85dna2ap4uy6kxkt8qy824xfgqa4sjdnfaxez33vhj3g24yhwhx4gx2pvadcrvmwatt8kfpvaz0l8jeaywkvnz9jlw5g0a4jw93xnsrpqvwa74nyhcuctwn9ry3tvuq3snq5a7uhqd5wwtxx3wham66nlnpyuqqqqqqqqqq8jqsd4",
+          "certificate1qyqsqqqqqqqqqqr3yxpekgdhtruwtjdarr5u50rd0y82exrk5dtwx3wvnmzuug0hfq54r4lx8khpjmzms4zlruh7p6qqqc4eyn5"
+        ]
+      ],
+      [
+        "mint",
+        [
+          "verifier1qygqqqqqqqqqqqr90cqqqqqqqqq8ylsqqqqqqqqq8sgqzqqqqqqqqefkqyqqqqqqqp4t7qqqqqqqqqqvqqqqqqqqqqqqanhhrz4wpdy3e3suerk7lvjma9f2rs5nalh6zsmtfpjtqj8hhudrfmmq468ynlmrvlduvkjdu7cq03eq288xca9q98747qdj93zqgtcmreeq6sq06kf3hltym0yzm8xc9gmargxqagmq6qjzs5fqx85qq8k0wwyrzdvar5m2mq5rths7uqhlt6fqnrjqqqtzzvg3svgv299nanc0ww90e8umy03rwtyjwlz4s8xt2kf8x3zm5qq85qql6lrmx7rrzu8wr3gldaxxx3d5rm7uz9eghttlu9d05dvkwyytwvunn8jzdq824zsvus5xa5mt2tcxsdevmywfyr4vtvjdx98p5rkkx5kw2d2pnnhvfh6h7yehhs3pvgplymkjruqet47fgfh399cgdhy9e8cg2tskekw37rzvcv9tkskn5yl6tzjcdrmaux3nx0pfy7cs3l4y5j0k4dgqf4m8l8empptwf0fr5wj4pn5q5xtcdftmlza4h9hpy58rp3uler93mgt37hjeggg6sjc8gauxt28cq2hv94ltet2vwf43xfm2alkzk2e7haxfgp53756x3ttnxyk5ldpvermprkfcqnj604q6ql2anptpqqunj7hjq9rwxpk2zxanzug342gefswxl3776fl44xr9fs7hyeqjzr60hrupsl7ag2q854dqylhtmqyve3e9h4qe0gs7cah023rnmwfd8t2lm9jj3evc7a2d9qlra9r2gpx7tj0g7ckme934ewm36r6n02qw0mpka55fd28thzsms3p74ge2v0cu0qac7pnt2vznlpmrc27pml4j35cqjezlpsdv2f52sdveftyqaquq9q532kh99clss9s2vl88ndh268t48q98p0q9hxwlgkf932c73gx7nh56szvdrd7hhwzxma9greslng2mq47paj93g2tug5ycxjcz87e3s2vxjcrlpdd423dzzrt8e20sqqqqqqqqqcd0kj2",
+          "certificate1qyqsqqqqqqqqqqpd6jq2ajjj5e0e80n8xcq08qnl23nrzvswgvtz8k3aemazarfyuxqpch5pc0arjfgtmu38hg34pjqsqfv47pd"
+        ]
+      ]
+    ],
+    "program_checksum": [
+      "109u8",
+      "83u8",
+      "8u8",
+      "31u8",
+      "33u8",
+      "139u8",
+      "90u8",
+      "27u8",
+      "164u8",
+      "6u8",
+      "9u8",
+      "103u8",
+      "49u8",
+      "102u8",
+      "59u8",
+      "53u8",
+      "220u8",
+      "199u8",
+      "139u8",
+      "216u8",
+      "174u8",
+      "182u8",
+      "196u8",
+      "68u8",
+      "226u8",
+      "182u8",
+      "149u8",
+      "181u8",
+      "230u8",
+      "189u8",
+      "3u8",
+      "250u8"
+    ],
+    "program_owner": "aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke"
+  },
+  "fee": {
+    "transition": {
+      "id": "au1mkwyxkkfx8e2kky86hurwn2cenwjlj5ha2jnvet4zj69qhulxuqqgra3pk",
+      "program": "credits.aleo",
+      "function": "fee_public",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "1813794267461351517426027560031866412959844027194073209706465482649277047316field",
+          "value": "2850355u64"
+        },
+        {
+          "type": "public",
+          "id": "2651068510929892985161992931521803829988321861068509216368744683125548029980field",
+          "value": "0u64"
+        },
+        {
+          "type": "public",
+          "id": "6616360638531790006657140221549467774710236648068271350863473656502817148159field",
+          "value": "8197842951119859388879824944446897500119870262133844853502208786260500430841field"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "529216021859926671825933819306749625706209106867916045750210183330040697113field",
+          "value": "{\n  program_id: credits.aleo,\n  function_name: fee_public,\n  arguments: [\n    aleo1ecrqqyvaszpehqc967g5aau4uqt2dg3y5ardm0y5wf4hxjajzsyqm5cxke,\n    2850355u64\n  ]\n}"
+        }
+      ],
+      "tpk": "3495539451830276496342747462983688064322671960257381383480297927929321293944group",
+      "tcm": "917299518151759378593143961948072084429269809158141124601421438955521666939field",
+      "scm": "4383335061033151694426589160273260500143614685663355282712651172360015451956field"
+    },
+    "global_state_root": "sr1xdhje285prdfz6dc3493zc8q30dhwufnllp7j57tvmzpfelwuc9syjamy9",
+    "proof": "proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqgrh8zycgrgtpfv5wlkq7c90zamsg06hqefzmu9fdcp0xu74s62z0mx7yf0ds6f5rckscgj09gd9cpqyeuswn8c09lw7s5lxmmh4j8g6905euy77q76ru5ne6r0v3m5rmttd7h5gj9p0mr4g753jkj66588qdmg0quusngera570n6d95p9y202wdtt5akuagekrd5enzekajyw9hrmuee8202fl327e0s5cpngzqfk4jqkhwpq09chn882k4e90a7utfw7ene94jghvd2phxsnmjmp3ym6ffu54a7v0fspa5kh0j239yq855935s4arcqx3w9ztjcdgszk3h7tn44zdx6kq2xgkds3s34qun7a7flcju0pjc0kl7qrqv4vvfcps3qaf4459x2sfjz7rysu9qhy2kg6ymrqm3tdc7xln84jt7kn7zt5r454vua3t2404359nhwqgnwqqcjk8egzgjnwfmtalxuf0lhrlnp2jx5j6l2ja3mmwn3thgmz202wptyxat5knf8cdcqsm93d8alqqysvm830sckp2fzuj3ejgp6rfa7q2e8nd00mzwl844qx2u6xdqchanyvgf7maprnu3k27k2zce3dqq735pjlcgtcu7v9xpzkcafu283alg4ueugn6z2hj6k96lrde3q7hh7jawqvfldeytl2gykfptx72sp09wlwt0uzl22dtazjhlcgecg8lcr2ku7ark5cfce288dzr6d4vqqfds78x8xkpdys2xxefv9kdx4l8zhzwt35erzv6rn995k56d9jpcrpzgdxv9x3lajfhndrgnmh93m78fyz89x233t7md8uuph2s3qzr294ekurquc6uewfta5vu9z92xa5ltcw8d59n6vee9a0dnfwz5s07ygfcmusgkk6qt6q330qwke36maamcwgtn4he8hhr80pqj3qtqt3d8a3zl6zs7pc5wfue6jrzv9caq5afs8m3j77yyh6xj6dznwhurcax4t8g0f4f93ve5ugkkmn87lkpkvrmmhwx4pfqat360tatrggrugazc5yeyh6xqmtgsmsfk6qlet8gsehy5dggz4ql8p3j3ya072qsqr5qt2h7l2khm2qqsezf5exy0fqvjgcmy2t002a254zktlr0zsln5myg27pcutytr2rpl0s82xw46vvuv3ge8lz9ypcgdmp6c6naq9qvqqqqqqqqqqq36g6whd2fv4gfj0457v87lu79xerzhs85zv5m6v0pks2ksh476tku022vnzuh6ezjpehm6gr9vpqyq0zvw23knthywuleam28d49gyzn4j98eu2ndn9zd2jqd3xlxqkntarfq2znl808jrq63hjmhxv3dgqq9d9hfmwqn5cf907arc8yruyt9smajtmxmpz4hk80cq3r7gk4hasc7r0fey2wrsjlt2amm9ykafkka9ndcu070j688mvflfyqyzv9u7y5mplsdduaermndtapj3v2la8qyqqk4xk8k"
+  }
+}

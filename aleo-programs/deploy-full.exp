@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+
+set timeout 600
+log_user 1
+
+cd badge_minimal
+
+spawn leo deploy --network testnet --broadcast
+
+expect {
+    "Do you want to continue?" {
+        send "y\r"
+        exp_continue
+    }
+    "Successfully deployed" {
+        puts "\n\n✅ DEPLOYMENT CONFIRMED!"
+        exit 0
+    }
+    "Transaction broadcast" {
+        puts "\n\n📡 Transaction broadcast, waiting for confirmation..."
+        exp_continue
+    }
+    "Error" {
+        puts "\n\n❌ ERROR DETECTED"
+        exit 1
+    }
+    timeout {
+        puts "\n\n⏱️  Timeout after 10 minutes"
+        exit 1
+    }
+    eof {
+        puts "\n\n⚠️  Process ended"
+        exit 0
+    }
+}
